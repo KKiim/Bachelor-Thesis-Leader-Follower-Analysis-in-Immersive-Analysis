@@ -1,5 +1,4 @@
-# BirdsWithSynchronization
-# Bachlor-Project: Time Synchronization for Mutliple Cesium Instances
+# Bachelor-Project: Time Synchronization for Multiple Cesium Instances
 * Mentor, University: Dr. Karsten Klein, Universität Konstanz
 * Student: Kim Lasse Rehberg
 
