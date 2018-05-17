@@ -32,7 +32,7 @@
     </script>
 
     <script type="text/javascript" src="../../../ThirdParty/requirejs-2.1.20/require.js"></script>
-
+    <!-- End of things for Syncronization -->
 
     <script type="text/javascript">
     require.config({
@@ -42,7 +42,7 @@
     </script>
 </head>
 <body class="sandcastle-loading" data-sandcastle-bucket="bucket-requirejs.html">
-<!-- 
+<!--
 Things that are not working for some reasons (mostly taken from web demos and forums)
 - several menus and the extra cesium toolbars
 - trajectory interpolation - must be sampledpositionproperty
@@ -54,9 +54,9 @@ Things that are not working for some reasons (mostly taken from web demos and fo
       <!-- @import url(d3chart.css); -->
       @import url(../../../Build/Cesium/Widgets/widgets.css);
     @import url(../templates/bucket.css);
-    
 
-	
+
+
 @const boundary: 250px;
 
 :root{
@@ -87,7 +87,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
   left: var(--leftmar);
   background: rgba(42, 42, 42, 0.8);
   color: #edffff;
-  white-space: nowrap; 
+  white-space: nowrap;
   padding: 4px 8px;
   border-radius: 4px;
    min-width: 20px;
@@ -102,7 +102,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
   left: var(--leftmar);
   background: rgba(42, 42, 42, 0.8);
   color: #edffff;
-  white-space: nowrap; 
+  white-space: nowrap;
   padding: 4px 8px;
   border-radius: 4px;
    min-width: 100px;
@@ -120,14 +120,14 @@ Things that are not working for some reasons (mostly taken from web demos and fo
         width: 25%;
         max-width: none;
     }
-	
+
 .controlPanel2 {
   position: auto;
   top: 50px;
   left: 1600px;
   background: rgba(42, 42, 42, 0.8);
   color: #edffff;
-  white-space: nowrap; 
+  white-space: nowrap;
   padding: 4px 8px;
   border-radius: 4px;
 }
@@ -148,7 +148,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
     opacity: 1.0;
     filter: alpha(opacity=100); /* For IE8 and earlier */
 }
-   
+
 
 .chart div {
   font: 10px sans-serif;
@@ -173,7 +173,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 
 .visible>div {
 	visibility:visible;
-}   
+}
 
 #altAnimation {
     width: 20px;
@@ -259,23 +259,23 @@ Things that are not working for some reasons (mostly taken from web demos and fo
     var xScale = d3.scaleLog().domain([0, 250]).range([0, width]);
     var yScale = d3.scaleLinear().domain([0, 100]).range([height, 0]);
     //var radiusScale = d3.scaleSqrt().domain([0, 5e2]).range([0, 40]);
-	
+
     var colorScale = d3.schemeCategory20c;
 
-  
+
 	svg = d3.select("svg"),
 	g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	
+
 	function lineChart(data) {
-		
+
 		// Reformat time string
 		// [Format dependency]
 		//for (int k = 0; k < data.length; k++) {
 		//	var s = data[k].date.split("T")[0];
 		//	data[k].date = s;
 		//	console.log(data[k].date);
-		//} 
-		
+		//}
+
 		//remove current line
 		d3.select("path.altline").remove();
 		if  (data === undefined) return;
@@ -348,7 +348,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 				margin-bottom: -3px;
 				background: transparent;
 			}
-			
+
 			.ui-datepicker {
 				font-size: 10pt;
 			}
@@ -366,33 +366,33 @@ Things that are not working for some reasons (mostly taken from web demos and fo
             // To make sure we can access structures in a callback
             var myCesium;
             var myViewer;
-			var myBirds; 
-            
+			var myBirds;
+
             var positions;
-            var property; //positions 
-            
+            var property; //positions
+
             function deepCopy(o) {
                 var copy = o,k;
-             
+
                 if (o && typeof o === 'object') {
                     copy = Object.prototype.toString.call(o) === '[object Array]' ? [] : {};
                     for (k in o) {
                         copy[k] = deepCopy(o[k]);
                     }
                 }
-             
+
                 return copy;
             }
             function myCallBack(data0) {
-            	
+
             	data = data0;
                 newData = deepCopy(data.individuals); // instead of slice
                 //console.log(data);
-                
+
                 for (i = 0; i < data.individuals.length; i++) {
                     data.individuals[i].color = colors[i];
                 }
-                
+
                 /*
                 viewer.entities.add({
 					position: mymodel.position,
@@ -422,8 +422,8 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 
                 }));
                 */
-                
-                
+
+
                 startDate = null;
                 endDate = null;
                 for (i = 0; i < data.individuals.length; i++) {
@@ -439,12 +439,12 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 						// Check here for height, too.
                         // Now we have to build the entity here
                         // Timestamps are milliseconds since 01011970
-                        var theTime = new Date(ts); 
+                        var theTime = new Date(ts);
                         var theCTime = myCesium.JulianDate.fromDate(theTime);//new Cesium.JulianDate();
                         console.log(theCTime);
-						
+
 						thePosition.addSample(theCTime,myCesium.Cartesian3.fromDegrees(llong, llat, 250));
-                        
+
                         if (startDate != null) {
                             startDate = Math.min(startDate, ts);
                             endDate = Math.max(endDate, ts);
@@ -479,17 +479,17 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 							})
 					}
 					}));
-					
+
                 }
                 return data;
             }
-            
+
             // Takes the Cesium instance and a sampled property
 			function initialize(Cesium, viewer, birds, property) {
                myCesium = Cesium;
                myViewer = viewer;
 			   myBirds = birds;
-               
+
                $.getJSON(jsonUrl + "?callback=?", {
                     study_id: study_id,
                     individual_local_identifiers: individual_local_identifiers,
@@ -497,10 +497,10 @@ Things that are not working for some reasons (mostly taken from web demos and fo
                     // timestamp_start: timestamp_start, // !! enable to limit data display to a time range
                     // timestamp_end: timestamp_end, // !! enable to limit data display to a time range
                     sensor_type: "gps" // !! change if needed to specify the sensor type to display; options are gps, argos-doppler-shift, solar-geolocator, radio-transmitter, bird-ring, natural-mark
-                }, 
+                },
                 myCallBack
-                
-            
+
+
                 )}
 
 /// End Movebank data
@@ -524,7 +524,7 @@ var maxCPClimbLimit = 100; // Take only positions into account for climbing pole
 var maxCPDistLimit = 100; // Take only positions into account for climbing pole within maxCPDistLimit meters distance
 
 // Interpolation option index
-var iplin = 1; // Linear 
+var iplin = 1; // Linear
 var iplag = 2; // Langrange
 var ipher = 3; // Hermite
 
@@ -535,8 +535,8 @@ var fastestClimbingBird = 0; // currently fastest climbing
 var climbingBird = []; // sequence of fastest climbing bird's index over time
 
 // Corresponding speed values at a time point
-var highSpeed = 0; // Highest speed 
-var highGain = 0; // Highest altitude gain 
+var highSpeed = 0; // Highest speed
+var highGain = 0; // Highest altitude gain
 var timeGranularity = 10; // time step size for testing fastest climb and speed (also used to update the leader's marking
 
 // Altitude
@@ -546,14 +546,14 @@ var maxAlt = 0; // Maximum altitude
 var svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">' +
        '<foreignObject width="100%" height="100%">' +
        '<div xmlns="http://www.w3.org/1999/xhtml" style="font-size:40px; color: #FF0">' +
-         '<em>I</em> like' + 
+         '<em>I</em> like' +
          '<span style="color:white; text-shadow:0 0 2px blue;">' +
          'Bird</span>' +
        '</div>' +
        '</foreignObject>' +
        '</svg>';
 
-	  
+
 // The string that is used for the content of the information frame (shown when an entity is selected)
 var descriptionString = 'Bird'+' Information:'+
 		'<div style="text-align:left; padding:5px">' +   '</div>'+
@@ -565,7 +565,7 @@ var descriptionString = 'Bird'+' Information:'+
         //'Previous bird</button><button class="birdplus-button">' +
         //'Next bird</button></div>';
 		//+'<select name="Birds" class="birdlist">';
-	   
+
 // Version for the controlPanel
 var cpDescriptionString = //'<p> Some text</p>'+
 		'<div style="text-align:center; padding:15px"><button class="trace-button"> Show/hide trace</button>'+'<button class="traceall-button" id="traceall">' + 'Show/hide all traces</button></div>' +
@@ -575,7 +575,7 @@ var cpDescriptionString = //'<p> Some text</p>'+
 		'<select name="Birds" style="text-align:left;float:right" class="birdlist">';
 		//'<div style="text-align:center; padding:15px"><button class="birdminus-button">' +
         //'Previous bird</button><button class="birdplus-button">' + 'Next bird</button></div>'+
-		
+
 // Altitude visualization
 var altDescriptionString = '<div id ="altSpan"></div><div id="altAnimation"></div>';
 
@@ -585,12 +585,12 @@ var altDescriptionString = '<div id ="altSpan"></div><div id="altAnimation"></di
 function addBars(descString, minA) {
 		descString += '<div class="chart" style="width:5%"><div class="chart" id="altBar" style="text-align:center; float:right; height: 100px; width:100%;">' +Math.trunc(minA)+'<div class="chartline"  id="altline" style="color:red; text-align:center;  width:5%; height: 5px;position:absolute"></div>';
 		//<div class="chartline"  id="altline" style="text-align:center; right:0px; height: 10px; width:5%;position:absolute"></div>';
-		
+
 			// position:fixed;
 			//cpDescriptionString +=  ' <script>' + 'myBarchart.draw();'+'<\/script>';
 			return descString;
 }
-        
+
 	var image = new Image();
 	image.src = 'data:image/svg+xml;base64,' + window.btoa(svgString);
 
@@ -744,7 +744,7 @@ var chartRect = function ()
     var y       = 50;
     var width   = 100;
     var height  = 100;
-    
+
     context.strokeStyle = 'red';
     context.strokeRect(x, y, width, height);
 }
@@ -754,7 +754,7 @@ var Barchart = function(options){
     this.canvas = options.canvas;
     this.ctx = this.canvas.getContext("2d");
     this.colors = options.colors;
-  
+
     this.draw = function(){
         var maxValue = 0;
         for (var categ in this.options.data){
@@ -762,7 +762,7 @@ var Barchart = function(options){
         }
         var canvasActualHeight = this.canvas.height - this.options.padding * 2;
         var canvasActualWidth = this.canvas.width - this.options.padding * 2;
- 
+
         //drawing the grid lines
         var gridValue = 0;
         while (gridValue <= maxValue){
@@ -775,22 +775,22 @@ var Barchart = function(options){
                 gridY,
                 this.options.gridColor
             );
-             
+
             //writing grid markers
             this.ctx.save();
             this.ctx.fillStyle = this.options.gridColor;
             this.ctx.font = "bold 10px Arial";
             this.ctx.fillText(gridValue, 10,gridY - 2);
             this.ctx.restore();
- 
+
             gridValue+=this.options.gridScale;
         }
-  
+
         //drawing the bars
         var barIndex = 0;
         var numberOfBars = Object.keys(this.options.data).length;
         var barSize = (canvasActualWidth)/numberOfBars;
- 
+
         for (categ in this.options.data){
             var val = this.options.data[categ];
             var barHeight = Math.round( canvasActualHeight * val/maxValue) ;
@@ -802,10 +802,10 @@ var Barchart = function(options){
                 barHeight,
                 this.colors[barIndex%this.colors.length]
             );
- 
+
             barIndex++;
         }
-  
+
     }
 }
 
@@ -823,7 +823,7 @@ function progressTo(bird) {
 Sandcastle.addDefaultToolbarMenu([
     {
         text: 'Select mode',
-       
+
         onselect: function () { }
     },
 
@@ -843,14 +843,14 @@ Sandcastle.addDefaultToolbarMenu([
 		//viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-07-70.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
 		//mate.kmz
         //viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/b10.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
-        
+
         viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-07-70.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
-        
+
         	// will be filled by initialize
         	property = new Cesium.SampledPositionProperty();
-        
+
 			//initialize(Cesium, viewer, birds, property);
-			
+
 			 //for (i = 0; i < newData.length; i++) {
 			//		console.log("Nehew subject ");
 			 //}
@@ -861,39 +861,39 @@ Sandcastle.addDefaultToolbarMenu([
             //Create the entities after KML loaded
 			var positions = new Array();
 			//var birds = new Array();
-			
+
             var position = model.position;
 			var position2 = model2.position;
-			
+
             //positions.add(position);
             var mydata = dataSource.entities.values;
-			
+
 			var loopSize = mydata.length;
 			//console.log (loopSize);
-			
+
 			var HPR = new Cesium.HeadingPitchRoll((Cesium.Math.toRadians(270)), 0, 0);
 
 			// Initialize the list of bird names for the select in the control panel
 			for (var k = 0; k < loopSize; k++) {
 				//descriptionString += '<option value='+k+'>'+mydata[k].id+'</option>';
 				cpDescriptionString += '<option value='+k+'>'+mydata[k].name+'</option>'; //.id
-				
+
 			}
-			
-			
-			
+
+
+
 			cpDescriptionString += '</select></div>';
-			var minAlt = 10000; //magic 
+			var minAlt = 10000; //magic
 			//console.log(dataSource.entities); //dataSource.entities._entities.length
 			// Only during start we want to store climbing speed per time point to compare between birds and find the fastest
 			var climbingSpeed = []; // Holds the max climbing speed for each time point
 			for (var i = 0; i < loopSize; i++) {
-	
+
 				var mymodel = mydata[i];
-				
+
 				// local reference frame for rotation, not positioning
 				var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
-					Cesium.Cartesian3.fromDegrees(0, 0, 0.0));	
+					Cesium.Cartesian3.fromDegrees(0, 0, 0.0));
 					// Get the transform from local heading-pitch-roll at cartographic (0.0, 0.0) to Earth's fixed frame.
 				var center = Cesium.Cartesian3.fromDegrees(0.0, 0.0);
 				var heading = -Cesium.Math.PI_OVER_FOUR;//TWO;
@@ -906,7 +906,7 @@ Sandcastle.addDefaultToolbarMenu([
 				dstrings[dstrings.length-1] += 'Bird ID: '+mymodel.name +'<br/>';//'<div style="text-align:center; padding:15px">Zoom to all</div>';
 				dstrings[dstrings.length-1] += '  Bird Name: '+ mymodel.id+'<br/>';
 				//dstrings[dstrings.length-1] += '<div class="chart"><div style="width: 40px;">42</div></div>';
-			
+
 				// Altitude representation
 				var ids = ' <div id="alter'+i+'" class="altErnative"></div>';
 				//var idst = ' <div id="alter1" class="altErnative"></div>';
@@ -917,13 +917,13 @@ Sandcastle.addDefaultToolbarMenu([
 				//console.log(mydata[i].path);
 				var resStart = mymodel.position.getValue(viewer.clock.startTime, new Cesium.Cartesian3());
 				var resStop = mymodel.position.getValue(viewer.clock.stopTime, new Cesium.Cartesian3());
-				var curTime = new Cesium.JulianDate; 
+				var curTime = new Cesium.JulianDate;
 
 				Cesium.JulianDate.clone(viewer.clock.startTime,curTime);
 				//Object.assign(curTime, viewer.clock.startTime);
 				//var curTime = viewer.clock.startTime;
 				var endTime = viewer.clock.stopTime;
-				
+
 				// Get start and end altitude
 				var startAlt = Cesium.Cartographic.fromCartesian(resStart).height;
 				var stopAlt = Cesium.Cartographic.fromCartesian(resStop).height;
@@ -933,15 +933,15 @@ Sandcastle.addDefaultToolbarMenu([
 				// This is not yet including the intermediate altitude
 				if (startAlt < minAlt) minAlt = startAlt;
 				if (stopAlt < minAlt) minAlt = stopAlt;
-				
-				
+
+
 				var m = 1;
                 var tmpPosition = new Cesium.SampledPositionProperty();
                 //console.log(typeof mymodel.position);
                 Object.assign(tmpPosition, mymodel.position);
-                
+
                 // How to get current altitude
-				
+
 				var timeLine = [];
 				var timePointIndex = 0; // at which timepoint are we right now
                 while (Cesium.JulianDate.compare(curTime, endTime) < 0) {
@@ -951,11 +951,11 @@ Sandcastle.addDefaultToolbarMenu([
                     ////
 					///
 						var parseDate = d3.timeParse("%0d-%0m-%Y-%H-%M-%S");
-						
+
 						///
 					var tmpDate = Cesium.JulianDate.toDate(curTime);
 					var dateString = tmpDate.getDate()+"-"+tmpDate.getMonth()+"-"+tmpDate.getFullYear()+"-"+tmpDate.getHours()+"-"+tmpDate.getMinutes()+"-"+tmpDate.getSeconds();
-					
+
 					timeLine.push(
 					{
 						date: parseDate(dateString),
@@ -964,7 +964,7 @@ Sandcastle.addDefaultToolbarMenu([
 					}
 					);
 					//console.log(timeLine[timeLine.length-1]);
-					
+
 					////
 					var nextTime = new Cesium.JulianDate;
 					Cesium.JulianDate.clone(curTime, nextTime);
@@ -995,20 +995,20 @@ Sandcastle.addDefaultToolbarMenu([
 						timePointIndex++;
 					}
 					Cesium.JulianDate.addSeconds(curTime, timeGranularity, curTime);
-					
+
 				}
 				timeLines.push(timeLine);
 				console.log(altChanges);
 				fastestClimbingBird = climbingBird[0];
-				
+
 				dstrings[dstrings.length-1] += '  Altitude gain '+ altGain;
-				
-				
+
+
 				console.log(startAlt+" "+stopAlt);
-				
+
 				// Position in radians and altitude in meters
 				console.log(Cesium.Cartographic.fromCartesian(mymodel.position.getValue(viewer.clock.startTime)));
-			
+
                 var theSphere = viewer.entities.add({
                     position: mymodel.position, //Cesium.Cartesian3.fromDegrees(-98.0, 45.0, height),
                     ellipsoid: {
@@ -1016,7 +1016,7 @@ Sandcastle.addDefaultToolbarMenu([
                         outline: true,
                         outlineColor: Cesium.Color.WHITE,
                         outlineWidth: 2,
-                        material: Cesium.Color.fromAlpha(Cesium.Color.WHITE,0.35)//Cesium.Color.fromRandom({ alpha: 0.5 })						
+                        material: Cesium.Color.fromAlpha(Cesium.Color.WHITE,0.35)//Cesium.Color.fromRandom({ alpha: 0.5 })
 						//granularity: Cesium.Math.RADIANS_PER_DEGREE*2
                     },
 					show: false,
@@ -1027,7 +1027,7 @@ Sandcastle.addDefaultToolbarMenu([
                     name: "Sphere"//,
                     //parent: theBird
                 });
-				
+
 				var degreeArray = [];
 			for (var li = 0; li < mymodel.position.length; li++) {
 				degreeArray.push(mymodel.position[i].longitude);
@@ -1037,7 +1037,7 @@ Sandcastle.addDefaultToolbarMenu([
 				mymodel.position
 			// Add entities
 			// This is just the index!
-			
+
 			var theBird = birds.push(
 				viewer.entities.add({
 					position: mymodel.position,
@@ -1084,7 +1084,7 @@ Sandcastle.addDefaultToolbarMenu([
 
                 }));
             theSphere.addProperty("pid");
-			
+
 
     //);
 
@@ -1097,12 +1097,12 @@ Sandcastle.addDefaultToolbarMenu([
 		//birds[i].polyline.material = Cesium.Color.clone(Cesium.Color.GREEN);
 		//console.log(" Bird: "+bviewer,entities[0]);//.polyline.material = Cesium.Color.GREEN;
 	}
-	
+
 	}
 	lineChart(timeLines[0]);
 	birds[fastestClimbingBird].sphere.show = true;
 	console.log("Vögel: "+birds.length);
-	
+
 	//console.log("Avail "+birds[0].isAvailable(viewer.clock.startTime)); //viewer.entities.computeAvailability());
 	//viewer.entities.computeAvailability();
 	//console.log("Avail "+birds[0].position.getValue()); //viewer.entities.computeAvailability());
@@ -1115,7 +1115,7 @@ Sandcastle.addDefaultToolbarMenu([
 			viewer.scene.useWebVR = true;
 		}
 		var theTime = Math.trunc(clock.currentTime.secondsOfDay % tickTime); // actually larger values than 60 are possible for now
-	
+
 		var time = new Date().getTime();
 		//console.log(theTime);
 		// Every few seconds
@@ -1124,11 +1124,11 @@ Sandcastle.addDefaultToolbarMenu([
 			//console.log(birds[0].position[0]);//.getCurrentPosition().latitude
 		}
 		// Now we calculate the index of the current time in the best lists
-		var stTime = new Cesium.JulianDate; 
+		var stTime = new Cesium.JulianDate;
 
 		Cesium.JulianDate.clone(viewer.clock.startTime,stTime);
 		var timeDiff = Math.floor(Cesium.JulianDate.secondsDifference(clock.currentTime, stTime)/ timeGranularity);
-		
+
 		//console.log(fastestClimbingBird);
 		//console.log(climbingBird[timeDiff]);
 		if (climbingBird[timeDiff] != fastestClimbingBird) {
@@ -1138,15 +1138,15 @@ Sandcastle.addDefaultToolbarMenu([
 			fastestClimbingBird = climbingBird[timeDiff];
 			birds[fastestClimbingBird].sphere.show = true;
 		}
-		
+
 		// Move altitude bar
 		// Make that bullet proof without magic numbers asap
 		if (viewer.selectedEntity != null && viewer.selectedEntity != undefined)
 		{
 			var thePos = viewer.selectedEntity._position.getValue(viewer.clock.currentTime, new Cesium.Cartesian3());
 			var altitude =  Cesium.Cartographic.fromCartesian(thePos).height;
-		
-			var elem = document.getElementById("altAnimation"); 
+
+			var elem = document.getElementById("altAnimation");
 			//var curPos = elem.style.top.substring(0,elem.style.top.length-2);
 			//var poschange = parseInt(curPos)+5;
 			//console.log(poschange);
@@ -1157,7 +1157,7 @@ Sandcastle.addDefaultToolbarMenu([
 			var thePosi = birds[k]._position.getValue(viewer.clock.currentTime, new Cesium.Cartesian3());
 			var alti =  Cesium.Cartographic.fromCartesian(thePosi).height;
 			var altids = 'alter'+k;
-			
+
 			var elem = document.getElementById(altids);
 			if (elem != undefined) {
 				elem.style.top = 10+(maxAlt-alti)/maxAlt*180 +  'px';
@@ -1203,8 +1203,8 @@ var entity = viewer.entities.add({
 handler.setInputAction(function (movement) {
         var pick = scene.pick(movement.endPosition);
         if (Cesium.defined(pick) && Cesium.defined(pick.node) && Cesium.defined(pick.mesh)) {
-            //console.log('node: ' + pick.node.name + '. mesh: ' + pick.mesh.name);	
-			
+            //console.log('node: ' + pick.node.name + '. mesh: ' + pick.mesh.name);
+
 			var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
             var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
 			entity.position = pick;
@@ -1247,7 +1247,7 @@ function setHeight(height) {
     handler.setInputAction(function (click) {
         var pickedObject = viewer.scene.pick(click.position);
 
-        /* if (pickedObject instanceof Cesium.Cesium3DTileFeature) 
+        /* if (pickedObject instanceof Cesium.Cesium3DTileFeature)
         {
             var propertyNames = pickedObject.getPropertyNames();
             var length = propertyNames.length;
@@ -1262,7 +1262,7 @@ function setHeight(height) {
             var obj = viewer.entities.getById(entityId);
             if (obj._name == 'Sphere'){
             	viewer.selectedEntity = birds[obj._birdId];
-				
+
             	 var thePos = birds[obj._birdId]._position.getValue(viewer.clock.currentTime, new Cesium.Cartesian3());
                  var altitude =  Cesium.Cartographic.fromCartesian(thePos).height;
             } else
@@ -1272,7 +1272,7 @@ function setHeight(height) {
 				viewer.selectedEntity = obj;
 			}
 			updateViews(viewer.selectedEntity);
-			
+
             //console.log(entityId + pickedObject.position);
             //console.log(viewer.entities.getById(entityId));
             //viewer.selectedEntity = viewer.getById(birds[pickedObject.bid].id);
@@ -1296,22 +1296,22 @@ document.getElementById('radioSphere').addEventListener('click', function (e) {
         viewer.trackedEntity.sphere.show = false;
     } else { viewer.trackedEntity.sphere.show = true;}
     */
-	
+
     if (e.target && e.target.id == "sphere"){
         for ( i = 0; i < birds.length; i++ ) {
                 birds[i].sphere.show = true; //!birds[i].sphere.show;
     	}
     }
-    else { 
+    else {
 		if (e.target && e.target.id == "bird"){
 			for ( i = 0; i < birds.length; i++ ) {
 				birds[i].sphere.show = false; //!birds[i].sphere.show;
-			} 
+			}
 		}
 	}
             }, false);
-	
-	
+
+
 document.getElementById('radioPanel').addEventListener('click', function (e) {
 	if (e.target && e.target.id == "altpanel"){
 		if ($('#controlPanelAlt').css("visibility") == 'hidden') {
@@ -1328,7 +1328,7 @@ document.getElementById('radioPanel').addEventListener('click', function (e) {
 		}
 	}
 }, false);
-	
+
 document.getElementById('radioCPanel').addEventListener('click', function (e) {
 	if (e.target && e.target.id == "conpanel"){
 		if ($('#controlPanel').css("visibility") == 'hidden') {
@@ -1340,7 +1340,7 @@ document.getElementById('radioCPanel').addEventListener('click', function (e) {
 	}
 }, false);
 
-	
+
 viewer.infoBox.frame.contentDocument.body.addEventListener('click', function(e) {
         //
         // The document body will be rewritten when the selectedEntity changes,
@@ -1355,24 +1355,24 @@ viewer.infoBox.frame.contentDocument.body.addEventListener('click', function(e) 
 		if (e.target && e.target.className === 'birdplus-button') {
            //console.log(viewer.selectedEntity.myIndex);
 		   var nextEntity = birds[(viewer.selectedEntity.myIndex-1) % birds.length];
-		   
+
 		   selectBird(nextEntity);
 		   //viewer.trackedEntity = nextEntity;
            //viewer.selectedEntity = viewer.trackedEntity;
-		   
+
 		   //mydata[viewer.selectedEntity.myIndex].show = !mydata[viewer.selectedEntity.myIndex].show;
             //updateDisplay();
         } else
 		if (e.target && e.target.className === 'birdminus-button') {
            //console.log(viewer.selectedEntity.myIndex);
 		   var nextEntityMinus = birds[(viewer.selectedEntity.myIndex-1) % birds.length];
-		   
+
 		   selectBird(nextEntityMinus);
 		   //viewer.trackedEntity = nextEntityMinus;
            //viewer.selectedEntity = viewer.trackedEntity;
-        } 
+        }
     }, false);
-	
+
 viewer.infoBox.frame.contentDocument.body.addEventListener('change', function(e) {
 		if (e.target && e.target.className === 'birdlist') {
            //console.log("Select");
@@ -1380,10 +1380,10 @@ viewer.infoBox.frame.contentDocument.body.addEventListener('change', function(e)
 		   viewer.trackedEntity = birds[e.target.value];
 		   viewer.selectedEntity = birds[e.target.value];
         }
-}, false);	
+}, false);
 
 document.getElementById('birdMinus').addEventListener('click', function() {
-	
+
 	var newIndex = ((((viewer.selectedEntity.myIndex-1) % birds.length) + birds.length) % birds.length);
 	//console.log(newIndex);
 	var nextEntityMinus = birds[newIndex];
@@ -1395,12 +1395,12 @@ document.getElementById('birdMinus').addEventListener('click', function() {
 }, false);
 
 document.getElementById('birdPlus').addEventListener('click', function() {
-	
+
 	ellipsoid.cartesianToCartographic(viewer.scene.camera.position, cartographic);
 	var camerah = cartographic.height;
 	var cameramag = viewer.scene.camera.getMagnitude();
 	var nextEntityPlus = birds[(viewer.selectedEntity.myIndex+1) % birds.length];
-		   
+
 	viewer.flyTo(nextEntityPlus).then(function(){
 				viewer.clock.shouldAnimate = false;
                 viewer.trackedEntity = nextEntityPlus;
@@ -1415,7 +1415,7 @@ document.getElementById('birdPlus').addEventListener('click', function() {
 		   //console.log(camerah);
 	setHeight(camerah);
 	viewer.scene.camera.moveUp(100);
-	
+
 	//lineChart(timeLines[(viewer.selectedEntity.myIndex+1) % birds.length]);
 	//cameramag-viewer.scene.camera.getMagnitude());
 }, false);
@@ -1424,23 +1424,23 @@ document.getElementById('birdPlus').addEventListener('click', function() {
 document.getElementById('textspace').innerHTML = cpDescriptionString;
 document.getElementById('controlPanelAlt').innerHTML = altDescriptionString;
 //document.getElementById('altSpace').innerHTML = altDescriptionString;
-	
-	
+
+
 document.getElementById('controlPanel').addEventListener('click', function(e) {
 	if (e.target && e.target.className === 'trace-button') {
-	
+
 		mydata[viewer.selectedEntity.myIndex].show = !mydata[viewer.selectedEntity.myIndex].show;
 		//console.log(mydata[viewer.selectedEntity.myIndex].kml.author);
 	} else
 	if (e.target && e.target.className === 'traceall-button') {
 		var traces = false;
 	// Assumes that we have a representation for each data model
-	
-	for (var i = 0; i < loopSize; i++) { 
+
+	for (var i = 0; i < loopSize; i++) {
 		traces = traces || mydata[i].show;
 	}
 	traces = !traces;
-	for (var i = 0; i < loopSize; i++) { 
+	for (var i = 0; i < loopSize; i++) {
 		mydata[i].show = traces; //!mydata[i].show;
 	}
 	}
@@ -1477,7 +1477,7 @@ viewer.terrainProvider = terrainProviderMeshes;
 viewer.terrainProvider = terrainProvider;
 viewer.scene.globe.enableLighting = true;
 
-    
+
 
 // Interface
 // Toolbar --------------------------
@@ -1486,7 +1486,7 @@ viewer.scene.globe.enableLighting = true;
 
 
 
-	
+
 //-----
 //Add button to view the path from the top down, not working as it moves the time outside the KML range
 /*
@@ -1494,7 +1494,7 @@ Sandcastle.addDefaultToolbarButton('View Top Down', function() {
     viewer.trackedEntity = undefined;
     viewer.zoomTo(viewer.entities, new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-90)));
 });
-  
+
 
 //Add button to view the path from the side
 Sandcastle.addToolbarButton('View Side', function() {
@@ -1520,7 +1520,7 @@ Sandcastle.addToolbarButton('View bird1', function() {
                 viewer.clock.multiplier = 1;
                 viewer.clock.shouldAnimate = true;
             });
-			
+
         });
     } // bird adventure on select
     },
@@ -1549,7 +1549,7 @@ Sandcastle.addToolbarButton('View bird1', function() {
                                 minimumPixelSize: 32,
                                 color: Cesium.Color.ALICEBLUE//YELLOW
                             },
-                    }); 
+                    });
                     */
                     viewer.trackedEntity = rider;
                     viewer.selectedEntity = viewer.trackedEntity;
@@ -1560,7 +1560,7 @@ Sandcastle.addToolbarButton('View bird1', function() {
         }
     },
 
-], 
+],
 'toolbar'); //default toolbar
 
 document.getElementById('controlPanel').addEventListener('change', function(e) {
@@ -1587,7 +1587,7 @@ document.getElementById('controlPanel').addEventListener('change', function(e) {
 			});
 			}
 		}
-}, false);	
+}, false);
 
 
 
@@ -1596,8 +1596,8 @@ document.getElementById('controlPanel').addEventListener('change', function(e) {
 		viewer.clock.clockRange = Cesium.ClockRange.UNBOUNDED;
 		viewer.clock.clockStep = Cesium.ClockStep.SYSTEM_CLOCK;
 	};
-	
-// Check why this is not working	
+
+// Check why this is not working
 	/*
 	//Add a combo box for selecting each interpolation mode.
 	Sandcastle.addToolbarMenu([{
