@@ -15,6 +15,10 @@
 
     <!-- Things for Syncronization -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script src="jquery.js"> </script>
+
+
     <script src="/../../../Build/Cesium/Cesium.js"></script>
     <script src="/../../../Sync/js/reconnecting-websocket.js"></script>
     <script src="/../../../Sync/./web-config.js"></script>
@@ -705,6 +709,37 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
     vrButton : true
 });
 */
+
+
+
+//AJAX Test
+//Sending test message.
+function sendResponse(keyCode) {
+    switch (keyCode) {
+    case 'M'.charCodeAt(0):
+        return true;
+    default:
+        return undefined;
+    }
+}
+
+
+document.addEventListener('keydown', function(e) {
+    var synced = sendResponse(e.keyCode);
+    if (typeof synced !== 'undefined') {
+        console.log("AJAX Requested 1SyncBird Line 730")
+        
+    }
+}, false);
+
+
+
+
+
+
+
+
+
 
 var options = {
     camera : viewer.scene.camera,
