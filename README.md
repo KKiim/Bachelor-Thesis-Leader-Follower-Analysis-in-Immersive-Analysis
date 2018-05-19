@@ -30,23 +30,23 @@ Start the WebSocket:
 Start Cesium:
 
   * On a Windows with node just start it the usaual way: cd to Cesium and <node server.js>
-  * Master Display: http://localhost:<port>/Apps/Sandcastle/gallery/1SyncBird.html?mode=master
-  * Slave Displays: http://localhost:<port>/Apps/Sandcastle/gallery/1SyncBird.html?mode=slave
+  * Master Display: http://localhost:PORT/Apps/Sandcastle/gallery/1SyncBird.html?mode=master
+  * Slave Displays: http://localhost:PORT/Apps/Sandcastle/gallery/1SyncBird.html?mode=slave
 OR
 * Host this directory on a server.
   * On a Linux machine with an Apache server, it could be placed at /var/www/html/ the application can now be accessed at:
-  * Master Display: http://localhost:<port>/Apps/Sandcastle/gallery/1SyncBird.html?mode=m
-  * Slave Displays: http://localhost:<port>/Apps/Sandcastle/gallery/1SyncBird.html?mode=s
+  * Master Display: http://localhost:PORT/Apps/Sandcastle/gallery/1SyncBird.html?mode=m
+  * Slave Displays: http://localhost:PORT/Apps/Sandcastle/gallery/1SyncBird.html?mode=s
 OR
   * On Windows/Linux/Mac? machine you can use python2 with the command: python -m SimpleHTTPServer <port>
   * On Windows/Linux/Mac? machine you can use python3 with the command: py -m http.server <port>
   * In this case:
-   * Master Display: http://localhost:<port>/Apps/Sandcastle/gallery/1SyncBird.html?mode=m
-   * Slave Displays: http://localhost:<port>/Apps/Sandcastle/gallery/1SyncBird.html?mode=s
+   * Master Display: http://localhost:PORT/Apps/Sandcastle/gallery/1SyncBird.html?mode=m
+   * Slave Displays: http://localhost:PORT/Apps/Sandcastle/gallery/1SyncBird.html?mode=s
 
   on your web browser(not Windows Edge).
 
-* If you just start http://localhost:<port>/Apps/Sandcastle/gallery/1SyncBird.html or the mode value is unknown(not one of those [m, master, s, slave]), it will start as a not synchronized version.
+* If you just start http://localhost:PORT/Apps/Sandcastle/gallery/1SyncBird.html or the mode value is unknown(not one of those [m, master, s, slave]), it will start as a not synchronized version.
 
 
 
