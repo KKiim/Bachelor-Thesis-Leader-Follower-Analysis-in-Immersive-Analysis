@@ -25,11 +25,11 @@ The FlyingBird folder goes in Apps/SampleData/models
 
 Start the WebSocket:
 * cd to the WS folder
-* -node server.js- starts the WebSocket-Server
+* `node server.js` starts the WebSocket-Server
 
 Start Cesium:
 
-  * On a Windows with node just start it the usaual way: cd to Cesium and <node server.js>
+  * On a Windows with node just start it the usaual way: cd to Cesium and start the server with `node server.js`
   * Master Display: http://localhost:PORT/Apps/Sandcastle/gallery/1SyncBird.html?mode=master
   * Slave Displays: http://localhost:PORT/Apps/Sandcastle/gallery/1SyncBird.html?mode=slave
 OR
