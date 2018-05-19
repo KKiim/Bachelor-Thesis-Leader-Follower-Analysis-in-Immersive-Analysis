@@ -25,7 +25,7 @@ The FlyingBird folder goes in Apps/SampleData/models
 
 Start the WebSocket:
 * cd to the WS folder
-* <node server.js> starts the WebSocket-Server
+* -node server.js- starts the WebSocket-Server
 
 Start Cesium:
 
