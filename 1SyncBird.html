@@ -16,8 +16,10 @@
     <!-- Things for Syncronization -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-    <script src="jquery.js"> </script>
-
+    <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
 
     <script src="/../../../Build/Cesium/Cesium.js"></script>
     <script src="/../../../Sync/js/reconnecting-websocket.js"></script>
@@ -240,7 +242,6 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 	<div id ="textspace"></div>
 </div>
 <svg width="300" height="200"></svg>
-
 
 <script id="cesium_sandcastle_script">
 
@@ -713,24 +714,7 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
 
 
 //AJAX Test
-//Sending test message.
-function sendResponse(keyCode) {
-    switch (keyCode) {
-    case 'M'.charCodeAt(0):
-        return true;
-    default:
-        return undefined;
-    }
-}
 
-
-document.addEventListener('keydown', function(e) {
-    var synced = sendResponse(e.keyCode);
-    if (typeof synced !== 'undefined') {
-        console.log("AJAX Requested 1SyncBird Line 730")
-        
-    }
-}, false);
 
 
 
@@ -1661,11 +1645,106 @@ document.getElementById('controlPanel').addEventListener('change', function(e) {
     }
 }], 'interpolationMenu');
 */
+$(function() {
+    console.log("I WAS HERE Sricts");
+    //GET/READ
+    //Sending test message.
+    function sendResponse(keyCode) {
+        switch (keyCode) {
+        case 'G'.charCodeAt(0):
+            return true;
+        case 'P'.charCodeAt(0):
+            return false;
+        default:
+            return undefined;
+        }
+    }
+
+
+    document.addEventListener('keydown', function(e) {
+        var pg = sendResponse(e.keyCode);
+        if (typeof pg !== 'undefined') {
+            console.log("Was in 730")
+
+
+            if (pg) {
+                $.ajax({
+                    url: '/products',
+                    contentType: 'application/json',
+                    data: {
+                        ajaxid: 1,
+                        tauRange: 3,
+                        timeResulution: 10
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        console.log("Got the data");
+                    }
+                });
+            } else {
+                /*
+                $.ajax({
+                    url: '/products',
+                    method: 'POST'
+                    contentType: 'application/json',
+                    data: JSON.stringify({name: "SomeTestName"}),
+                    success: function(response) {
+                        console.log(response);
+                        console.log("Post success");
+                    }
+                });
+                */
+            $.ajax({
+                url: '/products',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({"timestamp":2}),
+                success: function(response) {
+                    console.log(response);
+                }
+            });
+
+            }
 
 
 
 
-    }); // End of master for synchronization
+
+/*
+            var request = new XMLHttpRequest();
+
+            request.onreadystatechange = function() {
+                if (request.readyState == 4){
+                    console.log(request.response)
+                }
+
+            }
+
+            request.open('GET', 'http://localhost:8080/Sync/test.json');
+            request.send();
+
+
+            function loadDoc() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200)
+                        console.log("AND HERE");
+                        console.log(this.responseText);
+                }
+            }
+
+*/
+        }
+    }, false);
+
+
+
+
+});
+
+
+
+    }); // End of synchronization
 
 //Sandcastle_End
     Sandcastle.finishedLoading();
@@ -1678,5 +1757,7 @@ if (typeof Cesium !== "undefined") {
 
 
 </script>
+<script src="jquery.js"> </script>
+
 </body>
 </html>
