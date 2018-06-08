@@ -12,9 +12,9 @@ The WS folder may be placed anyware on your PC.
 
 The Sync folder goes in the Cesium root directory. 
 
-The HTML-file 1SyncBird.html goes in Apps/Sandcastle/gallery
+The HTML-file 1SyncBird.html or  goes in Apps/Sandcastle/gallery
 
-If you use a new Cesium file, it has to be initialized with <npm install>.
+If you use a new Cesium file, it has to be initialized with `npm install`.
 
 The 2014-08-07.kml file goes in Apps/SampleData/kml
 
