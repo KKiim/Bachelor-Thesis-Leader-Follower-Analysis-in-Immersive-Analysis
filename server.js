@@ -196,7 +196,7 @@
             });
             */
 
-            fs.writeFile("HALLOHALLO.csv", str, function(err) {
+            fs.writeFile("LFdata.csv", str, function(err) {
                 if(err) {
                     return console.log(err);
                 }
