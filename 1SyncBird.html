@@ -37,7 +37,7 @@
         var CesiumSync = ProtoBuf.loadProtoFile("/../../../Sync/cesiumsync.proto").build("CesiumSync");
     </script>
 
-    <script src="/../../../Dep/papaparse.min.js"></script>
+    <script src="/../../../Python/Dep/papaparse.min.js"></script>
 
     <script type="text/javascript" src="../../../ThirdParty/requirejs-2.1.20/require.js"></script>
     <!-- End of things for Syncronization -->
@@ -1655,7 +1655,7 @@ document.getElementById('controlPanel').addEventListener('change', function(e) {
 */
 
 function parseData(createVis) {
-    Papa.parse("LFdata.csv", {
+    Papa.parse("/../../../Python/Data/LFdata.csv", {
         download: true,
         complete: function(result) {
             //console.log(result.data);
@@ -1757,7 +1757,7 @@ $(function() {
             } else {
                 var l_f_param = {
                     'tauRange': 3,
-                    'timeResolution': 5,
+                    'timeResolution': 1,
                     'minSigni': 0.95,
                     'tStepIntervall': 16
                 };
