@@ -17,6 +17,11 @@ function handleStateChange(state) {
         console.log("TimeMultiplier Update Rxd: "+ state["multiplier"]);
         setToMasterMultiplier(state["multiplier"]);
     }
+
+    if(state["id"]!=null) {
+        console.log("SelctID Update Rxd: "+ state["id"]);
+        setToMasterSelctID(state["id"]);
+    }
 }
 
 
@@ -99,4 +104,20 @@ function setToMasterPlay(play) {
         animationViewModel.playForwardViewModel.command();//same here
         animationViewModel.pauseViewModel.command();
     }
+
+
+}
+
+function setToMasterSelctID(entityName) {
+
+    let myEntities = viewer.entities.values;
+
+    for (var  i = 0 ; i < myEntities.length; i++){
+        let entity = myEntities[i]
+        if (entity.name == entityName){ //entity.name is called Bird ID in GUI
+            viewer.selectedEntity = entity;
+            //viewer.trackedEntity = entity; 
+        }
+    }
+
 }

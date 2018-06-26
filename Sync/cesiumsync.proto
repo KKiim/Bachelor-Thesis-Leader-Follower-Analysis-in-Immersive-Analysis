@@ -3,4 +3,5 @@ message CesiumSync {
     optional string time = 2;
     optional double multiplier = 3;
     optional bool play = 4;
+    optional string id = 5;
 }

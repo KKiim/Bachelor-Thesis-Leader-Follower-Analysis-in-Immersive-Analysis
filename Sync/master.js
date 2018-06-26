@@ -3,22 +3,52 @@ var playMaster = true; //keeps track if the play is active
 var multMaster = 0; //the multiplier must not be undefined
 var toggleTimedSync = true;
 
-
+const SYNC = 0;
+const ASYNC = 1;
+const TESTING = 2;
 
 //Switch between Synchronisation modes.
 function getSyncStatus(keyCode) {
     switch (keyCode) {
     case 'A'.charCodeAt(0):
-        return false;
-    case 'S'.charCodeAt(0):
-		return true;
+        return ASYNC;
+    case 'F'.charCodeAt(0):
+		return SYNC;
+    case 'T'.charCodeAt(0):
+		return TESTING;
     default:
         return undefined;
     }
 }
 
 document.addEventListener('keydown', function(e) {
-    var synced = getSyncStatus(e.keyCode);
+    var status = getSyncStatus(e.keyCode);
+
+    if (typeof status !== 'undefined') {
+        switch (status) {
+        case SYNC:
+            toggleTimedSync = true;
+            handleSetTime();
+            break;
+        case ASYNC:
+            toggleTimedSync = false;
+            break;
+        case TESTING:
+            console.log("Hello you are testing!!!");
+            sendSelctID("TEST ID");
+            break;
+        default:
+            break;
+        }
+    }
+    else {
+        console.log("the key pressed has no binding in Sync/master.js");
+    }
+
+
+
+
+
     if (typeof synced !== 'undefined') {
         toggleTimedSync = synced;
 		console.log(toggleTimedSync);
@@ -63,7 +93,7 @@ ws.onopen = function() {
             var sync = CesiumSync.decode(evt.data);
             console.log("Message-Type: State Update");
             handleStateChange(sync);
-            
+
         } catch (err) {
             console.log("Error: " + err);
         }
@@ -77,7 +107,7 @@ ws.onopen = function() {
 
 Cesium.knockout.getObservable(viewer.animation.viewModel.clockViewModel, 'shouldAnimate').subscribe(function(value) {
     playMaster = value; //value is true if animation is on play
-    
+
 	if (toggleTimedSync) {
 		handleThreeFlags([true,true,true]);//play mult time
 	} else {
@@ -117,7 +147,36 @@ function handleSetTime() {
 }
 
 
+//Begin of part for selection
+Sandcastle.finishedLoading();
+Cesium.knockout.getObservable(viewer, '_selectedEntity').subscribe(function(entity) {
+       if (entity !== undefined) {
+           //console.log("Entity ID = " + entity.id)
+           //console.log("Entity.name = " + entity.name)
+           let id = entity.name;  //same idetifier should be choosen in slave.js
+           if (id !== undefined) {
+                sendSelctID(id);
+           }
+       }
+});
 
+function sendSelctID(selectID){
+    console.log("Sending id: " + selectID);
+
+    if (ws != undefined) {
+        let sync = new CesiumSync();
+        sync.msgtype = 3; //should be chenged to 2...
+		sync.id = selectID;
+        console.log(sync)
+		ws.send(sync.toArrayBuffer());
+    } else {
+        console.log("websocket undefinded in Sync/master")
+    }
+}
+//End of part for selection
+
+/*
+//same as handleThreeFlags([true,true,true])
 function handleAll() {
     console.log("Sending multiplier time play: ");
 
@@ -129,20 +188,21 @@ function handleAll() {
         sync.multiplier = multMaster;
         ws.send(sync.toArrayBuffer());
     }
-	
+
 }
+*/
 
 function handleThreeFlags(input) {
-	
+
 	for (var i = 0 ; i<3; i++){
 		if (input[i] == undefined)
 			console.log("UNDEFINED");
 	}
-	
+
     if (ws != undefined) {
         var sync = new CesiumSync();
         sync.msgtype = 3;
-		
+
 		if (input[0]){
 			sync.play = playMaster;
 			console.log("play: " + playMaster );
@@ -155,10 +215,12 @@ function handleThreeFlags(input) {
 			sync.time = viewer.clock.currentTime.toString();
 			console.log("time: " + viewer.clock.currentTime.toString() );
 		}
-		
+
         ws.send(sync.toArrayBuffer());
+    } else {
+        console.log("websocket undefinded in Sync/master")
     }
-	
+
 }
 
 
@@ -175,7 +237,3 @@ window.setInterval(function() {
 	handleThreeFlags([true,true,true]);
     }
 }, 5000)
-
-
-
-
