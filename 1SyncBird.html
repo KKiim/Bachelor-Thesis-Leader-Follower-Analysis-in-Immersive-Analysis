@@ -37,6 +37,8 @@
         var CesiumSync = ProtoBuf.loadProtoFile("/../../../Sync/cesiumsync.proto").build("CesiumSync");
     </script>
 
+    <script src="/../../../Dep/papaparse.min.js"></script>
+
     <script type="text/javascript" src="../../../ThirdParty/requirejs-2.1.20/require.js"></script>
     <!-- End of things for Syncronization -->
 
@@ -372,6 +374,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
             var myCesium;
             var myViewer;
 			var myBirds;
+            var myLfArcCollection;
 
             var positions;
             var property; //positions
@@ -484,6 +487,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 							})
 					}
 					}));
+
 
                 }
                 return data;
@@ -703,24 +707,6 @@ function startup(Cesium) {
 
 //>SSS
 
-/*
-var viewer = new Cesium.Viewer('cesiumContainer', {
-    imageryProvider : bing,
-    baseLayerPicker : false,
-    vrButton : true
-});
-*/
-
-
-
-//AJAX Test
-
-
-
-
-
-
-
 
 
 
@@ -733,7 +719,9 @@ var options = {
 var birds = [];//new Array();
 var dstrings = [];//new Array();
 var timeLines = []; // for line chart, data and altitude
-
+var lfArcCollection = new Cesium.EntityCollection();
+var toShow = true;
+var idToIndex = [];
 
 // Helper to draw lines
 function drawLine(ctx, startX, startY, endX, endY,color){
@@ -858,12 +846,12 @@ Sandcastle.addDefaultToolbarMenu([
    //             viewer.clock.multiplier = 2;
    //             viewer.clock.shouldAnimate = true;
   onselect : function() {
-		//C:\Kaos\Data\Collective\Mate
-		//viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-07-70.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
-		//mate.kmz
-        //viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/b10.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
+    //C:\Kaos\Data\Collective\Mate
+    //viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-07-70.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
+	//mate.kmz
+    //viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/b10.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
 
-        viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-07-70.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
+    viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-07-70.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
 
         	// will be filled by initialize
         	property = new Cesium.SampledPositionProperty();
@@ -906,9 +894,10 @@ Sandcastle.addDefaultToolbarMenu([
 			//console.log(dataSource.entities); //dataSource.entities._entities.length
 			// Only during start we want to store climbing speed per time point to compare between birds and find the fastest
 			var climbingSpeed = []; // Holds the max climbing speed for each time point
-			for (var i = 0; i < loopSize; i++) {
+            //var leadFollArcs = [];  // Holds the Polylines that show leader follower interactions
+			for (let i = 0; i < loopSize; i++) {
 
-				var mymodel = mydata[i];
+				let mymodel = mydata[i];
 
 				// local reference frame for rotation, not positioning
 				var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
@@ -920,7 +909,7 @@ Sandcastle.addDefaultToolbarMenu([
 				var roll = 0.0;
 				//var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
 				var transform = Cesium.Transforms.headingPitchRollToFixedFrame(center, HPR);
-	//console.log(mymodel.name);
+                //console.log(mymodel.name);
 				dstrings.push(descriptionString);
 				dstrings[dstrings.length-1] += 'Bird ID: '+mymodel.name +'<br/>';//'<div style="text-align:center; padding:15px">Zoom to all</div>';
 				dstrings[dstrings.length-1] += '  Bird Name: '+ mymodel.id+'<br/>';
@@ -1028,6 +1017,37 @@ Sandcastle.addDefaultToolbarMenu([
 				// Position in radians and altitude in meters
 				console.log(Cesium.Cartographic.fromCartesian(mymodel.position.getValue(viewer.clock.startTime)));
 
+                for (let j = 0; j < loopSize; j++) {
+                let mymodelJ = mydata[j];
+                idToIndex[j] = mymodelJ.name;
+                if (i != j ){//&& (j  == (i + 1) % 12) || (j  == (i + 2) % 12)) {
+
+                    let theLfArc = viewer.entities.add({
+                        name : 'The Leader Follower Arc from' + i + ' to ' + j,
+                        id : 'arc' + i + 'to' + j,
+                        polyline : {
+                            positions :
+                            new Cesium.CallbackProperty(function(time) {
+                                //console.log(mymodel.position.getValue(time).x);
+                                return [mymodelJ.position.getValue(time), mymodel.position.getValue(time)];
+                            }, false),//false meaning is not constant
+                            width : 10,
+                            followSurface : false,
+                            material : new Cesium.PolylineArrowMaterialProperty(Cesium.Color.RED),
+                            show: new Cesium.CallbackProperty(function(time) {
+                                //console.log(mymodel.position.getValue(time).x);
+                                let dTime = Cesium.JulianDate.secondsDifference(time, viewer.clock.startTime);
+                                return getShowStatus(mymodel.name, mymodelJ.name, dTime)
+                            }, false),//false meaning is not constant
+                        }
+                    });
+                    //console.log(theLfArc.id + " name " + theLfArc.name);
+                    //console.log("NAME: " + mymodel.name);
+                    //console.log("ID: " + mymodel.id);
+                    //lfArcCollection.add(theLfArc)
+                } // End of if(i != j)
+                }   //End of for loop over j
+
                 var theSphere = viewer.entities.add({
                     position: mymodel.position, //Cesium.Cartesian3.fromDegrees(-98.0, 45.0, height),
                     ellipsoid: {
@@ -1047,77 +1067,65 @@ Sandcastle.addDefaultToolbarMenu([
                     //parent: theBird
                 });
 
-				var degreeArray = [];
-			for (var li = 0; li < mymodel.position.length; li++) {
-				degreeArray.push(mymodel.position[i].longitude);
-				degreeArray.push(mymodel.position[i].latitude);
-				degreeArray.push(mymodel.position[i].height);
-			}
+                console.log("Mymodel Position: " + mymodel.position.getValue(viewer.clock.currentTime).x)
 				mymodel.position
-			// Add entities
-			// This is just the index!
+    			// Add entities
+    			// This is just the index!
 
-			var theBird = birds.push(
-				viewer.entities.add({
-					position: mymodel.position,
-					orientation: new Cesium.VelocityOrientationProperty(mymodel.position),
-					model: {
-						uri: '../../SampleData/models/FlyingBird/storch_model_2017__1_7lq90.glb',//FalconRotate.gltf', //FalconColor.glb', //Duck.gltf',//bird.gltf /b789.glb
-						minimumPixelSize: 32,
-						color: Cesium.Color.LIGHTGREY//YELLOW
-                    },
-                    sphere : theSphere,
-					name: mymodel.name,  //.id
-					modelMatrix: transform,
-					description : dstrings[dstrings.length-1], //descriptionString,
-					path: {
-						resolution: 1,
-						leadTime: 1,
-						trailTime: 20,
-						material:
-						new Cesium.PolylineGlowMaterialProperty({
-							glowPower: 1.0,
-							color: Cesium.Color.WHITE
-						}),
-					width: 2
-					},
-					color: Cesium.Color.WHITE, //Test, remove
-					//_color: Cesium.Color.WHITE, //Test, remove
-					polyline: {
-						//depthFailMaterial: Cesium.Color.WHITE,
-						//color: Cesium.Color.WHITE,
-						material: Cesium.Color.WHITE//new Cesium.PolylineOutlineMaterialProperty({//PolylineGlowMaterialProperty({
-							////glowPower : 1,
-							//outlineColor: Cesium.Color.BLUE,
-							//color : Cesium.Color.BLUE
-							//})
-					},
-					//wall: {
-					//	material : Cesium.Color.BLUE.withAlpha(0.5),
-					//	positions: Cesium.Cartesian3.fromDegreesArrayHeights(degreeArray)
-					//},
-					myIndex : i,
-					altGain : altGain,
-					tracker: "bird"
-		//,orientation : orientation1
-
-                }));
+    			var theBird = birds.push(
+    				viewer.entities.add({
+    					position: mymodel.position,
+    					orientation: new Cesium.VelocityOrientationProperty(mymodel.position),
+    					model: {
+    						uri: '../../SampleData/models/FlyingBird/storch_model_2017__1_7lq90.glb',//FalconRotate.gltf', //FalconColor.glb', //Duck.gltf',//bird.gltf /b789.glb
+    						minimumPixelSize: 32,
+    						color: Cesium.Color.LIGHTGREY//YELLOW
+                        },
+                        sphere : theSphere,
+    					name: mymodel.name,  //.id
+    					modelMatrix: transform,
+    					description : dstrings[dstrings.length-1], //descriptionString,
+    					path: {
+    						resolution: 1,
+    						leadTime: 1,
+    						trailTime: 20,
+    						material:
+    						new Cesium.PolylineGlowMaterialProperty({
+    							glowPower: 1.0,
+    							color: Cesium.Color.WHITE
+    						}),
+    					width: 2
+    					},
+    					color: Cesium.Color.WHITE, //Test, remove
+    					//_color: Cesium.Color.WHITE, //Test, remove
+    					polyline: {
+    						//depthFailMaterial: Cesium.Color.WHITE,
+    						//color: Cesium.Color.WHITE,
+    						material: Cesium.Color.WHITE//new Cesium.PolylineOutlineMaterialProperty({//PolylineGlowMaterialProperty({
+    							////glowPower : 1,
+    							//outlineColor: Cesium.Color.BLUE,
+    							//color : Cesium.Color.BLUE
+    							//})
+    					},
+    					//wall: {
+    					//	material : Cesium.Color.BLUE.withAlpha(0.5),
+    					//	positions: Cesium.Cartesian3.fromDegreesArrayHeights(degreeArray)
+    					//},
+    					myIndex : i,
+    					altGain : altGain,
+    					tracker: "bird"
+                    }));
             theSphere.addProperty("pid");
 
 
-    //);
+            if (i >= 0) {
+    	           //console.log(birds[0]);
+    		       mymodel.show = false;
+    		       //birds[i].polyline.material = Cesium.Color.clone(Cesium.Color.GREEN);
+    	           //console.log(" Bird: "+bviewer,entities[0]);//.polyline.material = Cesium.Color.GREEN;
+    	    }
+        } //End of big for loop over all Models(Birds)
 
-
-
-    //console.log('Another bird');
-	if (i >= 0) {
-	//console.log(birds[0]);
-		mymodel.show = false;
-		//birds[i].polyline.material = Cesium.Color.clone(Cesium.Color.GREEN);
-		//console.log(" Bird: "+bviewer,entities[0]);//.polyline.material = Cesium.Color.GREEN;
-	}
-
-	}
 	lineChart(timeLines[0]);
 	birds[fastestClimbingBird].sphere.show = true;
 	console.log("Vögel: "+birds.length);
@@ -1645,8 +1653,69 @@ document.getElementById('controlPanel').addEventListener('change', function(e) {
     }
 }], 'interpolationMenu');
 */
+
+function parseData(createVis) {
+    Papa.parse("HALLOHALLO.csv", {
+        download: true,
+        complete: function(result) {
+            //console.log(result.data);
+            createVis(result.data);
+            console.log("Data read from CSV")
+        }
+    });
+}
+
+const time = 0;
+const iID = 1;
+const jID = 2;
+const tau = 3;
+const correlation = 4;
+var rangeLF = 5;
+
+var pythonLFdata = [];
+
+function createVis(lfData) {
+    pythonLFdata = lfData;
+    console.log("00 = " + pythonLFdata[0][0]);
+    console.log("01 = " + pythonLFdata[0][1]);
+    console.log("10 = " + pythonLFdata[1][0]);
+}
+
+function idToIndexFunc (birdNameNumber){
+    for (let index = 0; index < idToIndex.length; index++){
+        var string = idToIndex[index]
+        if (birdNameNumber === string){
+            return index;
+        }
+    }
+    console.log("something went wrong in the function: idToIndexFunc")
+    return index
+}
+
+function getShowStatus(iName ,jName ,deltaTime) {
+    var i = idToIndexFunc(iName) + 1; // as bird Index starts witch 1
+    var j = idToIndexFunc(jName) + 1;
+    for (var indexLF = 1; indexLF < pythonLFdata.length ; indexLF++){
+        var timeTabl = pythonLFdata[indexLF][time]
+        if (timeTabl > deltaTime - rangeLF ) {
+            if (timeTabl <= deltaTime + rangeLF) {
+                if (pythonLFdata[indexLF][iID] == i && pythonLFdata[indexLF][jID] == j){
+                    return true;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    return false;
+}
+
+parseData(createVis); //Aufruf wird verwendet um daten in Array zu speichern
+
+
 $(function() {
-    console.log("I WAS HERE Sricts");
+    console.log("Pressed key noticed (G or P)");
     //GET/READ
     //Sending test message.
     function sendResponse(keyCode) {
@@ -1660,91 +1729,57 @@ $(function() {
         }
     }
 
-
     document.addEventListener('keydown', function(e) {
         var pg = sendResponse(e.keyCode);
         if (typeof pg !== 'undefined') {
-            console.log("Was in 730")
-
-
+            console.log("Pressed Key noticed")
             if (pg) {
+                console.log(lfArcCollection.getById(11).name)
+                //lfArcCollection.getById(11).show = false;
+                var test = lfArcCollection.getById(11).isShowing;
+                toShow = !toShow
+                console.log("Is Showing? :)" + toShow);
+                /*
                 $.ajax({
                     url: '/products',
                     contentType: 'application/json',
                     data: {
                         ajaxid: 1,
                         tauRange: 3,
-                        timeResulution: 10
+                        timeResolution: 10
                     },
                     success: function(response) {
                         console.log(response);
                         console.log("Got the data");
                     }
                 });
+                */
             } else {
-                /*
+                var l_f_param = {
+                    'tauRange': 3,
+                    'timeResolution': 5,
+                    'minSigni': 0.95,
+                    'tStepIntervall': 16
+                };
                 $.ajax({
-                    url: '/products',
-                    method: 'POST'
+                    url: '/lfOutput', //versuch products
+                    method: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({name: "SomeTestName"}),
+                    data: JSON.stringify(l_f_param),
                     success: function(response) {
                         console.log(response);
-                        console.log("Post success");
+                        parseData(createVis);
                     }
                 });
-                */
-            $.ajax({
-                url: '/products',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({"timestamp":2}),
-                success: function(response) {
-                    console.log(response);
-                }
-            });
-
             }
-
-
-
-
-
-/*
-            var request = new XMLHttpRequest();
-
-            request.onreadystatechange = function() {
-                if (request.readyState == 4){
-                    console.log(request.response)
-                }
-
-            }
-
-            request.open('GET', 'http://localhost:8080/Sync/test.json');
-            request.send();
-
-
-            function loadDoc() {
-                var xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200)
-                        console.log("AND HERE");
-                        console.log(this.responseText);
-                }
-            }
-
-*/
         }
-    }, false);
-
-
-
+    }, false); //End of listener
 
 });
 
 
 
-    }); // End of synchronization
+}); // End of synchronization
 
 //Sandcastle_End
     Sandcastle.finishedLoading();
