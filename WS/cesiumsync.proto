@@ -2,5 +2,7 @@ message CesiumSync {
     required int32 msgtype = 1;
     optional string time = 2;
     optional double multiplier = 3;
-    optional bool play = 4;
+    optional string selectid = 4;
+    optional bool play = 5;
+
 }
