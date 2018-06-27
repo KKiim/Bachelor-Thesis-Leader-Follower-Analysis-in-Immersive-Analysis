@@ -63,6 +63,8 @@
                             wsClients[i].send(sync.toBuffer());
                     }
 
+                    console.log("id: " + sync.id)
+
                     if(sync.msgtype ==3){
                         if(sync.time!=null) {
                             state_sync.time = sync.time;
@@ -72,10 +74,15 @@
                             state_sync.multiplier = sync.multiplier;
                             console.log("Speed was updated to: " + sync.multiplier.toString());
                         }
+                        if(sync.id!=null) {
+                            state_sync.id = sync.id;
+                            console.log("id was updated to: "+ sync.id.toString());
+                        }
                         if(sync.play!=null) {
                             state_sync.play = sync.play;
                             console.log("Play was updated to: "+ sync.play.toString());
                         }
+
                     }
 
                 } catch (err) {
