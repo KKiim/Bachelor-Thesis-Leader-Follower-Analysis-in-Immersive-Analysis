@@ -20,12 +20,14 @@ earthR = 3671000.
 countAll = 0
 newBirdIndexList = [0]
 allBirds = []
+maxDist = 100
 
 
 class Bird(object):
-    def __init__(self, iD, time, speed, speedAbsolut, speedNorm):
+    def __init__(self, iD, time, coord, speed, speedAbsolut, speedNorm):
         self.iD = iD
         self.time = time
+        self.coord = coord
         self.speed = speed
         self.speedAbsolut = speedAbsolut
         self.speedNorm = speedNorm
@@ -67,8 +69,8 @@ for n in root.iter('{http://www.google.com/kml/ext/2.2}coord'):
 nL = newBirdIndexList
 
 for i in range(0, len(newBirdIndexList) - 1):
-    allBirds.append(Bird(i + 1, ts[nL[i]:nL[i+1]], speed[nL[i]:nL[i+1]],
-                         speedAbsolut[nL[i]:nL[i+1]],
+    allBirds.append(Bird(i + 1, ts[nL[i]:nL[i+1]], coord[nL[i]:nL[i+1]],
+                         speed[nL[i]:nL[i+1]], speedAbsolut[nL[i]:nL[i+1]],
                          speedNorm[nL[i]:nL[i+1]]))
 
 
@@ -76,36 +78,40 @@ def get_list(l_f_param):
 
     #    followerListsAllTimes = []
     bestTau = -1  # initalize bestTau with lowest possible value
-    tMin = 10  # hardCoded for storch_data
-    tMax = 290
-    tauRange = l_f_param['tauRange']
+    tMin = 0  # hardCoded for storch_data
+    tMax = 300
+    tauRange = l_f_param['tauRange'] + 1
     time1 = datetime.datetime.now()
 
     tInt = l_f_param['tStepIntervall']
     if tInt % 2 == 1:
         return "Error In Get_list TstepIntervall Must Be Even"
 
-    tIntHalf = 6  # tInt/2
-
-    followerListsAllTimes = [['time', 'iID', 'jID', 'tau', 'correlation']]
+    followerListsAllTimes = [['time', 'iID', 'jID', 'tau',
+                              'correlation']]
     # ['time', 'iID', 'jID', 'tau', 'correlation']
-    for tOffs in range(tMin, tMax, l_f_param['timeResolution']):
+    res = l_f_param['timeResolution']
+    tOffsMin = tMin + tInt + tauRange
+    tOffsMax = tMax - tInt - tauRange
+    for tOffs in range(tOffsMin, tOffsMax, res):
         for birdI in allBirds:
             for birdJ in allBirds:
                 if birdI != birdJ:
                     sumTauList = []
-                    for tau in range(0, tauRange + 1):
+                    for tau in range(0, tauRange):
                         sumB = 0
-                        for t in range(tOffs - tIntHalf, tOffs + 1 + tIntHalf):
+                        for t in range(tOffs - tInt, tOffs + 1 + tInt):
                             vDotProd = np.dot(birdI.speedNorm[t],
                                               birdJ.speedNorm[t + tau])
                             sumB = sumB + vDotProd
                         sumTauList.append(sumB)
                     bestTau = (tauRange - sumTauList.index(max(sumTauList)),
-                               max(sumTauList) / (tIntHalf * 2. + 1.))
+                               max(sumTauList) / (tInt * 2. + 1.))
                     if bestTau[1] > l_f_param['minSigni']:
-                        birdParam = [tOffs, birdI.iD, birdJ.iD, bestTau[0],
-                                     bestTau[1]]
+                        distance = npl.norm(birdI.coord[t] - birdJ.coord[t])
+                        if distance < maxDist:
+                            birdParam = [tOffs, birdI.iD, birdJ.iD, bestTau[0],
+                                         bestTau[1]]
                         followerListsAllTimes.append(birdParam)
                         # print(lf_Dframe)
 

@@ -72,6 +72,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 --altspanheight: 180px;
 --boundary: 200px;
 --bartop: 280px;
+--timelinewidth: 700px;
 }
 .telement{
 --altspanheight: 180px;
@@ -102,6 +103,21 @@ Things that are not working for some reasons (mostly taken from web demos and fo
    min-height: var(--boundary);
    max-width: 30px;
    max-height: var(--boundary);
+}
+
+
+.controlPanel4 {
+    display: block;
+    position: absolute;
+    bottom: 30px;
+    left: 166px;
+    padding-right: var(--timelinewidth);
+    padding-top: 10px;
+    background: rgba(42, 42, 42, 0.8);
+    border-radius: 4px;
+
+
+
 }
 
 .d3panel {
@@ -199,11 +215,26 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 	left: var(--leftmar);
 }
 
+#lfSpan {
+    width: var(--altspanheight);
+    height: 5px;
+    position: absolute;
+    background: white;
+	top: 10px;
+	left: var(--leftmar);
+}
+
 .altErnative {
     width: 10px;
     height: 2px;
     position: absolute;
     background: darkgrey;
+}
+
+.lfRelation {
+    height: 10px;
+    top: 2px;
+    position: absolute;
 }
 
 </style>
@@ -231,7 +262,10 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 </div>
 
 
-<div id ="altSpace"></div>
+<div id="altSpace"></div>
+<div id="timelineLF" class="controlPanel4" >
+
+</div>
 <div id="controlPanelAlt" class="controlPanel3" >
 
 </div>
@@ -587,6 +621,8 @@ var cpDescriptionString = //'<p> Some text</p>'+
 
 // Altitude visualization
 var altDescriptionString = '<div id ="altSpan"></div><div id="altAnimation"></div>';
+// Leader Follower visualization
+//var lfDescriptionString = '<div id ="lfSpan"></div><div id="altSpan"></div>';
 
 //'<img id ="altLine" src="Altbar.png" vspace ="1"  alt="Grafik">';
 	   // For the span of altitudes
@@ -917,9 +953,14 @@ Sandcastle.addDefaultToolbarMenu([
 
 				// Altitude representation
 				var ids = ' <div id="alter'+i+'" class="altErnative"></div>';
+                //var lfIDs = ' <div id="timeSlot'+i+'" class="altErnative"></div>';
 				//var idst = ' <div id="alter1" class="altErnative"></div>';
 				//console.log(ids);
 				altDescriptionString += ids;//'<div id=class="altErnative"></div>';
+
+                //lfDescriptionString += lfIDs;
+
+                //lfDescriptionString += '<div id="alter0" class="altErnative" style="top: 67.1533px;"></div>'
 
 				// Testing if positions could be read
 				//console.log(mydata[i].path);
@@ -1661,24 +1702,26 @@ function parseData(createVis) {
             //console.log(result.data);
             createVis(result.data);
             console.log("Data read from CSV")
+            drawTimelineBar();
         }
     });
 }
 
-const time = 0;
-const iID = 1;
-const jID = 2;
-const tau = 3;
-const correlation = 4;
-var rangeLF = 5;
+const TIME = 0;
+const IID = 1;
+const JID = 2;
+const TAU = 3;
+const CORRELATION = 4;
+
+var rangeLF = 1; //Achtung nur vorrübergehend
 
 var pythonLFdata = [];
 
 function createVis(lfData) {
     pythonLFdata = lfData;
-    console.log("00 = " + pythonLFdata[0][0]);
-    console.log("01 = " + pythonLFdata[0][1]);
-    console.log("10 = " + pythonLFdata[1][0]);
+    console.log("00 = " + pythonLFdata[0][TIME]);
+    console.log("01 = " + pythonLFdata[0][IID]);
+    console.log("10 = " + pythonLFdata[1][TIME]);
 }
 
 function idToIndexFunc (birdNameNumber){
@@ -1696,10 +1739,10 @@ function getShowStatus(iName ,jName ,deltaTime) {
     var i = idToIndexFunc(iName) + 1; // as bird Index starts witch 1
     var j = idToIndexFunc(jName) + 1;
     for (var indexLF = 1; indexLF < pythonLFdata.length ; indexLF++){
-        var timeTabl = pythonLFdata[indexLF][time]
+        var timeTabl = pythonLFdata[indexLF][TIME]
         if (timeTabl > deltaTime - rangeLF ) {
             if (timeTabl <= deltaTime + rangeLF) {
-                if (pythonLFdata[indexLF][iID] == i && pythonLFdata[indexLF][jID] == j){
+                if (pythonLFdata[indexLF][IID] == i && pythonLFdata[indexLF][JID] == j){
                     return true;
                 }
             } else {
@@ -1711,8 +1754,106 @@ function getShowStatus(iName ,jName ,deltaTime) {
     return false;
 }
 
-parseData(createVis); //Aufruf wird verwendet um daten in Array zu speichern
+parseData(createVis); //Aufruf wird verwendet um initial daten in Array zu speichern
 
+
+const DATALENGTH = 300; // length of data time intervall in seconds
+var timelineCountArray = new Array(DATALENGTH);
+timelineCountArray.fill(0);
+
+
+function drawTimelineBar() {
+    timelineCountArray.fill(0);
+    console.log("Drawing TimelineBar")
+    var time;
+    var plfLength = pythonLFdata.length;
+    if (plfLength > 1){
+
+    } else {
+        throw (new Error("The Array pythonLFdata is empty in drawTimelineBar"));
+    }
+
+    var plfIndex = 1; //needs to start with 1
+    for (var timeInSec = 0; timeInSec < DATALENGTH - 1; timeInSec++){
+        time = pythonLFdata[plfIndex][TIME];
+        console.log("timeIndex:" + timeInSec);
+        console.log("time:" + time);
+
+
+        while( time == timeInSec && plfIndex < plfLength - 1){
+            timelineCountArray[timeInSec]++;
+            time = pythonLFdata[plfIndex][TIME];
+            plfIndex++;
+        }
+        console.log("timelineCountArray:" + timelineCountArray[timeInSec]);
+    }
+/*        time = pythonLFdata[tcaIndex][TIME];
+        console.log(time);
+
+        if (time == oldTime){
+            count++;
+        } else if (time > oldTime){
+            console.log("IWASHERE!!!")
+            if (timeInSec == time){
+                count++;
+            } else {
+                timelineCountArray.push([oldTime, count]);
+                count = 0;
+            }
+        } else {
+            throw (new Error("The Array timelineCountArray is not monotot rising"));
+        }
+        oldTime = time;
+    }
+*/
+    //Testing
+    console.log("first time and count: " + timelineCountArray[0] + ", " + timelineCountArray[299]);
+
+    var divID = "timeID";
+    var pos = 0;
+    var width = 4;
+    var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'];
+    var color = myColors[0];
+    //var htmlStringID;
+    var htmlString = '';
+    var maxVal = 1;
+
+
+    for (var index = 0; index < timelineCountArray.length; index++){
+        var val = timelineCountArray[index];
+        if( val > maxVal){
+            maxVal = val
+        }
+    }
+
+
+    var sLFbar = function (value) {
+        return value
+        //return Math.log(value + 1); //log(0) = infinity
+    };
+
+    for (var index = 0; index < timelineCountArray.length; index++){
+        console.log("MyValue MaxVal:" + timelineCountArray[index] + ", "+ maxVal);
+        let normVal = sLFbar(timelineCountArray[index]) / sLFbar(maxVal);
+        console.log("MyIndex NormVal:" + index + ", "+ normVal);
+        let colorID = Math.round(normVal * (myColors.length - 1));
+        colorID = myColors.length - colorID -1;
+        console.log("MyIndex ColorID:" + index + ", "+ colorID);
+
+        //var ids = ' <div id="alter'+i+'" class="altErnative"></div>';
+        color = myColors[colorID];
+        pos = pos + width;
+
+        //htmlStringID += ids
+        htmlString += '<div id=lfdiv' + index
+        + ' class="lfRelation" style="background: '+ color
+        + '; left: '+ pos +'px' + '; width: '+ width +'px"></div>';
+
+    }
+
+    document.getElementById('timelineLF').innerHTML = htmlString;
+
+}
 
 $(function() {
     console.log("Pressed key noticed (G or P)");
@@ -1758,8 +1899,8 @@ $(function() {
                 var l_f_param = {
                     'tauRange': 3,
                     'timeResolution': 1,
-                    'minSigni': 0.95,
-                    'tStepIntervall': 16
+                    'minSigni': 0.85,
+                    'tStepIntervall': 10 //half of the interval
                 };
                 $.ajax({
                     url: '/lfOutput', //versuch products
