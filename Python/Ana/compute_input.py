@@ -29,7 +29,7 @@ def main():
     # print "Hello"
     # the_writer.writerow(list[i])
 
-    print list
+    print(list)
 
 
 # start process
