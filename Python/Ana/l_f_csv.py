@@ -6,7 +6,7 @@ import math
 import numpy as np
 import numpy.linalg as npl
 import xml.etree.ElementTree as ET
-tree = ET.parse('2014-08-07-70.kml')
+tree = ET.parse('Python/Ana/2014-08-07-70.kml')
 root = tree.getroot()
 ts = []
 coord = []
