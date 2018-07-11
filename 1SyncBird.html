@@ -199,6 +199,62 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 	visibility:visible;
 }
 
+.dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+
+    }
+
+    .runbtn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        z-index: 1;
+    }
+
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    /*.dropdown-content a:hover {background-color: #ddd;}*/
+
+    .dropdown:hover .dropdown-content {display: block;}
+
+    .dropdown:hover .dropbtn {display: none;}
+
+
+    .altErnative {
+        width: 10px;
+        height: 2px;
+        position: absolute;
+        background: darkgrey;
+    }
+
+    .lfRelation {
+        height: 10px;
+        top: 2px;
+        position: absolute;
+    }
+
 #altAnimation {
     width: 20px;
     height: 2px;
@@ -224,18 +280,16 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 	left: var(--leftmar);
 }
 
-.altErnative {
-    width: 10px;
-    height: 2px;
+#toolbarPyhton {
+    bottom: 40px;
+    right: 0px;
     position: absolute;
-    background: darkgrey;
+    background: rgba(42, 42, 42, 0.8);
+    padding: 4px;
+    border-radius: 8px;
 }
 
-.lfRelation {
-    height: 10px;
-    top: 2px;
-    position: absolute;
-}
+
 
 </style>
 
@@ -278,6 +332,51 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 	<div id ="textspace"></div>
 </div>
 <svg width="300" height="200"></svg>
+
+<div id="toolbarPyhton">
+    <div class="dropdown">
+        <button class="dropbtn">L-F</button>
+        <div class="dropdown-content">
+            <table>
+                <tbody><tr>
+                    <td><input type="checkbox" id="lfAktiv" > Show</td>
+                </tr>
+                <tr>
+                    <td>Tau-Range</td>
+                    <td>
+                        <input type="text" id="tauRange" value="3" size="5" >
+                        <div id="tauRangeE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Step</td>
+                    <td>
+                        <input type="text" value="1" id="step" size="5" >
+                        <div id="stepE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Min. Significance</td>
+                    <td>
+                        <input type="text" id="minSig" value="0.85" size="5" >
+                        <div id="minSigE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Intervall-length</td>
+                    <td>
+                        <input type="text" id="interLength" value="10" size="5" >
+                        <div id="interLengthE"></div>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+            <button class="runbtn" id=runBut>Run</button>
+
+        </div>
+    </div>
+</div>
 
 <script id="cesium_sandcastle_script">
 
@@ -547,6 +646,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
                 )}
 
 /// End Movebank data
+
 
 ///// Test only for visibility instead of CSS
 $(function() {
@@ -1133,7 +1233,7 @@ Sandcastle.addDefaultToolbarMenu([
     						material:
     						new Cesium.PolylineGlowMaterialProperty({
     							glowPower: 1.0,
-    							color: Cesium.Color.WHITE
+    							color: Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0.2)
     						}),
     					width: 2
     					},
@@ -1519,6 +1619,13 @@ document.getElementById('controlPanel').addEventListener('click', function(e) {
 
 
 
+
+
+
+
+
+
+
 //VRTheWorldTerrainProvider
 //Cesium.ArcGisImageServerTerrainProvider
 var terrainProvider = new Cesium.CesiumTerrainProvider({
@@ -1776,43 +1883,23 @@ function drawTimelineBar() {
     var plfIndex = 1; //needs to start with 1
     for (var timeInSec = 0; timeInSec < DATALENGTH - 1; timeInSec++){
         time = pythonLFdata[plfIndex][TIME];
-        console.log("timeIndex:" + timeInSec);
-        console.log("time:" + time);
-
 
         while( time == timeInSec && plfIndex < plfLength - 1){
             timelineCountArray[timeInSec]++;
             time = pythonLFdata[plfIndex][TIME];
             plfIndex++;
         }
-        console.log("timelineCountArray:" + timelineCountArray[timeInSec]);
+        //console.log("timelineCountArray:" + timelineCountArray[timeInSec]);
     }
-/*        time = pythonLFdata[tcaIndex][TIME];
-        console.log(time);
 
-        if (time == oldTime){
-            count++;
-        } else if (time > oldTime){
-            console.log("IWASHERE!!!")
-            if (timeInSec == time){
-                count++;
-            } else {
-                timelineCountArray.push([oldTime, count]);
-                count = 0;
-            }
-        } else {
-            throw (new Error("The Array timelineCountArray is not monotot rising"));
-        }
-        oldTime = time;
-    }
-*/
     //Testing
     console.log("first time and count: " + timelineCountArray[0] + ", " + timelineCountArray[299]);
 
     var divID = "timeID";
     var pos = 0;
     var width = 4;
-    var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'];
+    var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'].reverse();
+    //var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
     var color = myColors[0];
     //var htmlStringID;
     var htmlString = '';
@@ -1828,17 +1915,17 @@ function drawTimelineBar() {
 
 
     var sLFbar = function (value) {
-        return value
-        //return Math.log(value + 1); //log(0) = infinity
+        //return value
+        return Math.log(value + 1); //log(0) = infinity
     };
 
     for (var index = 0; index < timelineCountArray.length; index++){
-        console.log("MyValue MaxVal:" + timelineCountArray[index] + ", "+ maxVal);
+        //console.log("MyValue MaxVal:" + timelineCountArray[index] + ", "+ maxVal);
         let normVal = sLFbar(timelineCountArray[index]) / sLFbar(maxVal);
-        console.log("MyIndex NormVal:" + index + ", "+ normVal);
+        //console.log("MyIndex NormVal:" + index + ", "+ normVal);
         let colorID = Math.round(normVal * (myColors.length - 1));
-        colorID = myColors.length - colorID -1;
-        console.log("MyIndex ColorID:" + index + ", "+ colorID);
+        colorID = colorID;
+        //console.log("MyIndex ColorID:" + index + ", "+ colorID);
 
         //var ids = ' <div id="alter'+i+'" class="altErnative"></div>';
         color = myColors[colorID];
@@ -1853,6 +1940,8 @@ function drawTimelineBar() {
 
     document.getElementById('timelineLF').innerHTML = htmlString;
 
+    $( "#runBut" ).css('background-color', '#4CAF50');
+    $( ".dropbtn" ).css('background-color', '#4CAF50');
 }
 
 $(function() {
@@ -1917,6 +2006,105 @@ $(function() {
     }, false); //End of listener
 
 });
+
+var lfTauRange = $( "#tauRange" ).val();
+var lfTimeResolution = $( "#step" ).val();
+var lfMinSigni = $( "#minSig" ).val();
+var lfTstepIntervall = $( "#interLength" ).val();
+
+
+$( "#lfAktiv" ).click(function() {
+            console.log("Aktiv Button was clicked: " + this.value)
+})
+
+$( "#showLF" ).click(function() {
+    console.log("Show Button was clicked: " + this.value);
+    if ($(this).is(':checked'))
+        $( ".dropdown-content" ).css('display','block');
+    else {
+        console.log("I was here :)")
+        $( ".dropdown-content" ).css('display','none');
+
+    }
+})
+
+$( "#runBut" ).click(function() {
+    console.log("Run Button was clicked");
+    startPythonAna();
+    $(this).css('background-color', '#e31a1c');
+    $( ".dropbtn" ).css('background-color', '#e31a1c');
+
+
+})
+
+
+
+$( "#tauRange" ).change(function() {
+    lfTauRange = this.value;
+    if(this.value == 3)
+        document.getElementById("tauRangeE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("tauRangeE").innerHTML = '';
+})
+
+$( "#step" ).change(function() {
+    lfTimeResolution = this.value;
+    if(this.value == 3)
+        document.getElementById("stepE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("stepE").innerHTML = '';
+})
+
+$( "#minSig" ).change(function() {
+    lfMinSigni = this.value;
+    if(this.value == 3)
+        document.getElementById("minSigE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("minSigE").innerHTML = '';
+})
+
+$( "#interLength" ).change(function() {
+    lfTstepIntervall = this.value;
+    if(this.value == 3)
+        document.getElementById("interLengthE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("interLengthE").innerHTML = '';
+})
+
+function startPythonAna(){
+    var l_f_param = {
+        'tauRange': Number(lfTauRange),
+        'timeResolution': Number(lfTimeResolution),
+        'minSigni': Number(lfMinSigni),
+        'tStepIntervall': Number(lfTstepIntervall) //half of the interval
+    };
+
+
+    /*let l_f_param = {
+        'tauRange': 3,
+        'timeResolution': 1,
+        'minSigni': 0.85,
+        'tStepIntervall': 10 //half of the interval
+    };
+*/
+    console.log("Parameters set to:");
+    console.log(lfTauRange);
+    console.log(lfTimeResolution);
+    console.log(lfMinSigni);
+    console.log(lfTstepIntervall);
+
+
+    $.ajax({
+        url: '/lfOutput', //versuch products
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(l_f_param),
+        success: function(response) {
+            console.log(response);
+            parseData(createVis);
+        }
+    });
+}
 
 
 
