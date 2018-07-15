@@ -109,15 +109,7 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 .controlPanel4 {
     display: block;
     position: absolute;
-    bottom: 30px;
-    left: 166px;
-    padding-right: var(--timelinewidth);
-    padding-top: 10px;
-    background: rgba(42, 42, 42, 0.8);
-    border-radius: 4px;
-
-
-
+    left: 1px;
 }
 
 .d3panel {
@@ -281,12 +273,20 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 }
 
 #toolbarPyhton {
-    bottom: 40px;
+    bottom: 30px;
     right: 0px;
     position: absolute;
     background: rgba(42, 42, 42, 0.8);
     padding: 4px;
     border-radius: 8px;
+}
+
+#timelineUpper {
+    bottom: 50px;
+}
+
+#timelineLower {
+    bottom: 40px;
 }
 
 
@@ -317,9 +317,14 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 
 
 <div id="altSpace"></div>
-<div id="timelineLF" class="controlPanel4" >
+<div id="timelineUpper" class="controlPanel4" >
 
 </div>
+
+<div id="timelineLower" class="controlPanel4" >
+
+</div>
+
 <div id="controlPanelAlt" class="controlPanel3" >
 
 </div>
@@ -342,31 +347,45 @@ Things that are not working for some reasons (mostly taken from web demos and fo
                     <td><input type="checkbox" id="lfAktiv" > Show</td>
                 </tr>
                 <tr>
-                    <td>Tau-Range</td>
+                    <td>tau-range [s]</td>
                     <td>
                         <input type="text" id="tauRange" value="3" size="5" >
                         <div id="tauRangeE"></div>
                     </td>
                 </tr>
                 <tr>
-                    <td>Step</td>
+                    <td>step [s]</td>
                     <td>
                         <input type="text" value="1" id="step" size="5" >
                         <div id="stepE"></div>
                     </td>
                 </tr>
                 <tr>
-                    <td>Min. Significance</td>
+                    <td>min. significance high</td>
                     <td>
-                        <input type="text" id="minSig" value="0.85" size="5" >
-                        <div id="minSigE"></div>
+                        <input type="text" id="minSigH" value="0.85" size="5" >
+                        <div id="minSigHE"></div>
                     </td>
                 </tr>
                 <tr>
-                    <td>Intervall-length</td>
+                    <td>min. significance low</td>
+                    <td>
+                        <input type="text" id="minSigL" value="0.7" size="5" >
+                        <div id="minSigLE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>intervall length [s]</td>
                     <td>
                         <input type="text" id="interLength" value="10" size="5" >
                         <div id="interLengthE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>max. distance [m]</td>
+                    <td>
+                        <input type="text" id="maxDist" value="80" size="5" >
+                        <div id="MaxDistE"></div>
                     </td>
                 </tr>
                 </tbody>
@@ -1772,44 +1791,20 @@ document.getElementById('controlPanel').addEventListener('change', function(e) {
 		viewer.clock.clockStep = Cesium.ClockStep.SYSTEM_CLOCK;
 	};
 
-// Check why this is not working
-	/*
-	//Add a combo box for selecting each interpolation mode.
-	Sandcastle.addToolbarMenu([{
-    text : 'Interpolation: Linear Approximation',
-    onselect : function() {
-        viewer.trackedEntity.position.setInterpolationOptions({
-            interpolationDegree : 1,
-            interpolationAlgorithm : Cesium.LinearApproximation
-        });
-    }
-}, {
-    text : 'Interpolation: Lagrange Polynomial Approximation',
-    onselect : function() {
-        viewer.trackedEntity.position.setInterpolationOptions({
-            interpolationDegree : 5,
-            interpolationAlgorithm : Cesium.LagrangePolynomialApproximation
-        });
-    }
-}, {
-    text : 'Interpolation: Hermite Polynomial Approximation',
-    onselect : function() {
-        viewer.trackedEntity.position.setInterpolationOptions({
-            interpolationDegree : 2,
-            interpolationAlgorithm : Cesium.HermitePolynomialApproximation
-        });
-    }
-}], 'interpolationMenu');
-*/
+
+
+
+
 
 function parseData(createVis) {
     Papa.parse("/../../../Python/Data/LFdata.csv", {
         download: true,
         complete: function(result) {
-            //console.log(result.data);
+            console.log("Data read from CSV");
             createVis(result.data);
-            console.log("Data read from CSV")
-            drawTimelineBar();
+            drawTimelineBar(UPPERBAR);
+            drawTimelineBar(LOWERBAR);
+
         }
     });
 }
@@ -1820,12 +1815,56 @@ const JID = 2;
 const TAU = 3;
 const CORRELATION = 4;
 
+const DATALENGTH = 300; // length of data time intervall in seconds
+
+
 var rangeLF = 1; //Achtung nur vorrübergehend
+var birdCount = 12;
+
 
 var pythonLFdata = [];
+var pythonLFdataHighSigni = [];
+var pythonLFlookup = [];
+for ( var t = 0; t < DATALENGTH; t++) {  //t = t + step
+    pythonLFlookup[t] = [];
+    for (var i = 0; i < birdCount; i++) {
+        pythonLFlookup[t][i] = [];
+        for (var j = 0; j < birdCount; j++) {
+            pythonLFlookup[t][i][j] = false;
+        }
+    }
+}
 
 function createVis(lfData) {
+    console.log("Start to draw the Arcs");
     pythonLFdata = lfData;
+    pythonLFdataHighSigni = [];
+    for (var indexLF = 1 ; indexLF < pythonLFdata.length; indexLF++) {
+
+        if (pythonLFdata[indexLF][CORRELATION] > lfMinSigniH){
+            pythonLFdataHighSigni.push(pythonLFdata[indexLF]);
+        }
+    }
+
+
+    for ( var t = 0; t < DATALENGTH; t++) {  //t = t + step
+        pythonLFlookup[t] = [];
+        for (var i = 0; i < birdCount; i++) {
+            pythonLFlookup[t][i] = [];
+            for (var j = 0; j < birdCount; j++) {
+                pythonLFlookup[t][i][j] = false;
+            }
+        }
+    }
+
+    for (indexLF = 1; indexLF < pythonLFdataHighSigni.length; indexLF++ ){
+        let t = pythonLFdataHighSigni[indexLF][TIME];
+        let i = pythonLFdataHighSigni[indexLF][IID] - 1;
+        let j = pythonLFdataHighSigni[indexLF][JID] - 1;
+        pythonLFlookup[t][i][j] = true;
+    }
+
+    //console.log(pythonLFlookup);
     console.log("00 = " + pythonLFdata[0][TIME]);
     console.log("01 = " + pythonLFdata[0][IID]);
     console.log("10 = " + pythonLFdata[1][TIME]);
@@ -1843,13 +1882,27 @@ function idToIndexFunc (birdNameNumber){
 }
 
 function getShowStatus(iName ,jName ,deltaTime) {
+
     var i = idToIndexFunc(iName) + 1; // as bird Index starts witch 1
     var j = idToIndexFunc(jName) + 1;
-    for (var indexLF = 1; indexLF < pythonLFdata.length ; indexLF++){
-        var timeTabl = pythonLFdata[indexLF][TIME]
+    let tLF = Math.round(deltaTime);
+    //console.log(tLF + " " + i + " " + j);
+    var bool = pythonLFlookup[tLF][i-1][j-1];
+    if (bool == undefined){
+        bool = false;
+        console.log("VALUE undefinded in getShowStatus")
+    }
+    //console.log(bool);
+    return bool;
+    /*
+    var arr = pythonLFdataHighSigni;
+    var i = idToIndexFunc(iName) + 1; // as bird Index starts witch 1
+    var j = idToIndexFunc(jName) + 1;
+    for (var indexLF = 1; indexLF < arr.length ; indexLF++){
+        var timeTabl = arr[indexLF][TIME]
         if (timeTabl > deltaTime - rangeLF ) {
             if (timeTabl <= deltaTime + rangeLF) {
-                if (pythonLFdata[indexLF][IID] == i && pythonLFdata[indexLF][JID] == j){
+                if (arr[indexLF][IID] == i && arr[indexLF][JID] == j){
                     return true;
                 }
             } else {
@@ -1859,45 +1912,65 @@ function getShowStatus(iName ,jName ,deltaTime) {
     }
 
     return false;
+*/
 }
+
 
 parseData(createVis); //Aufruf wird verwendet um initial daten in Array zu speichern
 
 
-const DATALENGTH = 300; // length of data time intervall in seconds
-var timelineCountArray = new Array(DATALENGTH);
-timelineCountArray.fill(0);
+const UPPERBAR = 0;
+const LOWERBAR = 1;
+
+let arrUpper = new Array(DATALENGTH);
+let arrLower = new Array(DATALENGTH);
+
+var timelineCountArray = new Array(2);
+
+timelineCountArray[UPPERBAR] = arrUpper;
+timelineCountArray[LOWERBAR] = arrLower;
+
+timelineCountArray[UPPERBAR].fill(0);
+timelineCountArray[LOWERBAR].fill(0);
+
+//window.onresize = function(){drawTimelineBar()} //if it should be resizid as fast as possible
+$(window).resize(function () {
+    waitForFinalEvent(function(){
+        drawTimelineBar(UPPERBAR);
+        drawTimelineBar(LOWERBAR);
+  }, 500, "rezise timline Bar!");
+});
 
 
-function drawTimelineBar() {
-    timelineCountArray.fill(0);
-    console.log("Drawing TimelineBar")
-    var time;
-    var plfLength = pythonLFdata.length;
-    if (plfLength > 1){
+var waitForFinalEvent = (function () {
+  var timers = {};
+  return function (callback, ms, uniqueId) {
+    if (!uniqueId) {
+      uniqueId = "Don't call this twice without a uniqueId";
+    }
+    if (timers[uniqueId]) {
+      clearTimeout (timers[uniqueId]);
+    }
+    timers[uniqueId] = setTimeout(callback, ms);
+  };
+})();
 
+function drawTimelineBar(id) {
+    console.log("Start to Draw Timeline");
+
+    /*
+    if (id === UPPERBAR){
+        timelineCountArray = getTimelineCountArray(UPPERBAR);
     } else {
-        throw (new Error("The Array pythonLFdata is empty in drawTimelineBar"));
+        timelineCountArray = getTimelineCountArray(LOWERBAR);
+        console.log("ToDO");!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
+    */
 
-    var plfIndex = 1; //needs to start with 1
-    for (var timeInSec = 0; timeInSec < DATALENGTH - 1; timeInSec++){
-        time = pythonLFdata[plfIndex][TIME];
+    timelineCountArray[id] = getTimelineCountArray(id);
 
-        while( time == timeInSec && plfIndex < plfLength - 1){
-            timelineCountArray[timeInSec]++;
-            time = pythonLFdata[plfIndex][TIME];
-            plfIndex++;
-        }
-        //console.log("timelineCountArray:" + timelineCountArray[timeInSec]);
-    }
-
-    //Testing
-    console.log("first time and count: " + timelineCountArray[0] + ", " + timelineCountArray[299]);
-
-    var divID = "timeID";
     var pos = 0;
-    var width = 4;
+    var width = 1;
     var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'].reverse();
     //var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
     var color = myColors[0];
@@ -1906,8 +1979,10 @@ function drawTimelineBar() {
     var maxVal = 1;
 
 
-    for (var index = 0; index < timelineCountArray.length; index++){
-        var val = timelineCountArray[index];
+
+
+    for (var index = 0; index < timelineCountArray[id].length; index++){
+        var val = timelineCountArray[id][index];
         if( val > maxVal){
             maxVal = val
         }
@@ -1918,18 +1993,30 @@ function drawTimelineBar() {
         //return value
         return Math.log(value + 1); //log(0) = infinity
     };
-
-    for (var index = 0; index < timelineCountArray.length; index++){
+    var lfBarWidth = getLFbarWidth();
+    var bucketWidth = 1;
+    console.log(lfBarWidth)
+    for (var pixel = 0; pixel < lfBarWidth; pixel++){
         //console.log("MyValue MaxVal:" + timelineCountArray[index] + ", "+ maxVal);
-        let normVal = sLFbar(timelineCountArray[index]) / sLFbar(maxVal);
+
+        //var sum = 0;
+        //for (var bucketCount = pixel; bucketCount < pixel + bucketWidth; bucketCount++ ) {
+        var index = Math.round(DATALENGTH * (pixel / lfBarWidth));//pixel = bucketCount
+        //    sum += timelineCountArray[index];
+        //}
+
+        let normVal = sLFbar(timelineCountArray[id][index]) / sLFbar(maxVal);
         //console.log("MyIndex NormVal:" + index + ", "+ normVal);
         let colorID = Math.round(normVal * (myColors.length - 1));
         colorID = colorID;
+
+
         //console.log("MyIndex ColorID:" + index + ", "+ colorID);
 
         //var ids = ' <div id="alter'+i+'" class="altErnative"></div>';
         color = myColors[colorID];
         pos = pos + width;
+
 
         //htmlStringID += ids
         htmlString += '<div id=lfdiv' + index
@@ -1938,12 +2025,53 @@ function drawTimelineBar() {
 
     }
 
-    document.getElementById('timelineLF').innerHTML = htmlString;
+    if (id === UPPERBAR){
+        document.getElementById('timelineUpper').innerHTML = htmlString;
+    } else {
+        document.getElementById('timelineLower').innerHTML = htmlString;
+    }
+
 
     $( "#runBut" ).css('background-color', '#4CAF50');
     $( ".dropbtn" ).css('background-color', '#4CAF50');
 }
 
+function getTimelineCountArray(id) {
+    timelineCountArray[id].fill(0);
+    console.log("Drawing TimelineBar")
+    var time;
+    var dataArray;
+    if (id === UPPERBAR){
+        dataArray = pythonLFdataHighSigni;
+    } else {
+        dataArray = pythonLFdata;
+    }
+    var plfLength = dataArray.length; //could be more general
+    if (plfLength > 1){
+
+    } else {
+        throw (new Error("The Array pythonLFdata is empty in drawTimelineBar"));
+    }
+
+    var plfIndex = 1; //needs to start with 1
+    for (var timeInSec = 0; timeInSec < DATALENGTH - 1; timeInSec++){
+        time = dataArray[plfIndex][TIME];
+
+        while( time == timeInSec && plfIndex < plfLength - 1){
+            timelineCountArray[id][timeInSec]++;
+            time = dataArray[plfIndex][TIME];
+            plfIndex++;
+        }
+        //console.log("timelineCountArray:" + timelineCountArray[timeInSec]);
+    }
+
+    //Testing
+    console.log("first time and count: " + timelineCountArray[id][0] + ", " + timelineCountArray[id][299]);
+
+    return timelineCountArray[id];
+}
+
+/*
 $(function() {
     console.log("Pressed key noticed (G or P)");
     //GET/READ
@@ -1983,13 +2111,13 @@ $(function() {
                         console.log("Got the data");
                     }
                 });
-                */
+                //
             } else {
                 var l_f_param = {
                     'tauRange': 3,
                     'timeResolution': 1,
                     'minSigni': 0.85,
-                    'tStepIntervall': 10 //half of the interval
+                    'tStepIntervall': 10
                 };
                 $.ajax({
                     url: '/lfOutput', //versuch products
@@ -2006,12 +2134,14 @@ $(function() {
     }, false); //End of listener
 
 });
+*/
 
 var lfTauRange = $( "#tauRange" ).val();
 var lfTimeResolution = $( "#step" ).val();
-var lfMinSigni = $( "#minSig" ).val();
+var lfMinSigniH = $( "#minSigH" ).val();
+var lfMinSigniL = $( "#minSigL" ).val();
 var lfTstepIntervall = $( "#interLength" ).val();
-
+var maxDist = $( "#maxDist" ).val();
 
 $( "#lfAktiv" ).click(function() {
             console.log("Aktiv Button was clicked: " + this.value)
@@ -2055,12 +2185,20 @@ $( "#step" ).change(function() {
         document.getElementById("stepE").innerHTML = '';
 })
 
-$( "#minSig" ).change(function() {
-    lfMinSigni = this.value;
+$( "#minSigH" ).change(function() {
+    lfMinSigniH = this.value;
     if(this.value == 3)
-        document.getElementById("minSigE").innerHTML = "Hier Fehlermeldung in den Text";
+        document.getElementById("minSigHE").innerHTML = "Hier Fehlermeldung in den Text";
     else
-        document.getElementById("minSigE").innerHTML = '';
+        document.getElementById("minSigHE").innerHTML = '';
+})
+
+$( "#minSigL" ).change(function() {
+    lfMinSigniL = this.value;
+    if(this.value == 3)
+        document.getElementById("minSigLE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("minSigLE").innerHTML = '';
 })
 
 $( "#interLength" ).change(function() {
@@ -2071,28 +2209,40 @@ $( "#interLength" ).change(function() {
         document.getElementById("interLengthE").innerHTML = '';
 })
 
+$( "#maxDist" ).change(function() {
+    maxDist = this.value;
+
+    if(this.value == 3)
+        document.getElementById("MaxDistE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("MaxDistE").innerHTML = '';
+})
+
 function startPythonAna(){
     var l_f_param = {
         'tauRange': Number(lfTauRange),
         'timeResolution': Number(lfTimeResolution),
-        'minSigni': Number(lfMinSigni),
-        'tStepIntervall': Number(lfTstepIntervall) //half of the interval
+        'minSigni': Number(lfMinSigniL),
+        'tStepIntervall': Number(lfTstepIntervall),
+        'maxDist': Number(maxDist)
     };
 
 
-    /*let l_f_param = {
+    /*var l_f_param = {
         'tauRange': 3,
         'timeResolution': 1,
         'minSigni': 0.85,
         'tStepIntervall': 10 //half of the interval
     };
 */
+
+/*
     console.log("Parameters set to:");
     console.log(lfTauRange);
     console.log(lfTimeResolution);
     console.log(lfMinSigni);
     console.log(lfTstepIntervall);
-
+*/
 
     $.ajax({
         url: '/lfOutput', //versuch products
@@ -2104,6 +2254,39 @@ function startPythonAna(){
             parseData(createVis);
         }
     });
+}
+
+function getLFbarWidth(){
+    var totalWidth = $(window).width();
+    var minusWidth = 30; // fullscreenButtonSize
+    if (typeof viewer.animation !== 'undefined'){
+        minusWidth += 169;
+        let left = 169;
+        console.log("animation is on")
+        if (totalWidth < 900){
+            minusWidth -= 32;
+            left -= 32;
+        }
+        if (totalWidth < 600){
+            minusWidth -= 32;
+            left -= 32;
+        }
+        $(".controlPanel4").css('left', left);
+    } else {
+        console.log("animation is OFF")
+    }
+
+    if (typeof viewer.vrButton !== 'undefined'){
+        console.log("vrButton is ON");
+        minusWidth += 30;
+    }else {
+        console.log("vrButton is OFF");
+    }
+
+
+    console.log("minusWidth = " + minusWidth);
+    var result = totalWidth - minusWidth;
+    return result;
 }
 
 

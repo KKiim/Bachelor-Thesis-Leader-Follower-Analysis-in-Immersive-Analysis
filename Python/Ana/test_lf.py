@@ -4,7 +4,11 @@ l_f_param = {
     'tauRange': 3,
     'timeResolution': 1,
     'minSigni': 0.85,
-    'tStepIntervall': 6}
+    'tStepIntervall': 8,
+    'maxDist': 100
+}
+
+print (l_f_param['tStepIntervall'])
 
 list = lf.get_list(l_f_param)
 

@@ -20,7 +20,6 @@ earthR = 3671000.
 countAll = 0
 newBirdIndexList = [0]
 allBirds = []
-maxDist = 100
 
 
 class Bird(object):
@@ -81,6 +80,7 @@ def get_list(l_f_param):
     tMin = 0  # hardCoded for storch_data
     tMax = 300
     tauRange = l_f_param['tauRange'] + 1
+    maxDist = l_f_param['maxDist']
     time1 = datetime.datetime.now()
 
     tInt = l_f_param['tStepIntervall']
@@ -112,12 +112,14 @@ def get_list(l_f_param):
                         if distance < maxDist:
                             birdParam = [tOffs, birdI.iD, birdJ.iD, bestTau[0],
                                          bestTau[1]]
-                        followerListsAllTimes.append(birdParam)
+                            followerListsAllTimes.append(birdParam)
                         # print(lf_Dframe)
 
     time2 = datetime.datetime.now()
     deltaTime = time2 - time1
 
+    if len(followerListsAllTimes) < 2:
+        print("EMPTY!EPMTY!EMPTY!-l_f_csv.py-")
     # with open('HALLOHALLO.csv', 'w', newline='') as csvfile:
     #    the_writer = csv.writer(csvfile)
     #    for i in range(0, len(followerListsAllTimes)):
