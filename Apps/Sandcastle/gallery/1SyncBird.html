@@ -247,6 +247,12 @@ Things that are not working for some reasons (mostly taken from web demos and fo
         position: absolute;
     }
 
+    .lfMatrix {
+        height: 10px;
+        top: 2px;
+        position: absolute;
+    }
+
 #altAnimation {
     width: 20px;
     height: 2px;
@@ -289,6 +295,10 @@ Things that are not working for some reasons (mostly taken from web demos and fo
     bottom: 40px;
 }
 
+#matrixVis {
+    bottom: 170px;
+}
+
 
 
 </style>
@@ -322,6 +332,10 @@ Things that are not working for some reasons (mostly taken from web demos and fo
 </div>
 
 <div id="timelineLower" class="controlPanel4" >
+
+</div>
+
+<div id="matrixVis" class="controlPanel4" >
 
 </div>
 
@@ -363,14 +377,14 @@ Things that are not working for some reasons (mostly taken from web demos and fo
                 <tr>
                     <td>min. significance high</td>
                     <td>
-                        <input type="text" id="minSigH" value="0.85" size="5" >
+                        <input type="text" id="minSigH" value="0.99" size="5" >
                         <div id="minSigHE"></div>
                     </td>
                 </tr>
                 <tr>
                     <td>min. significance low</td>
                     <td>
-                        <input type="text" id="minSigL" value="0.7" size="5" >
+                        <input type="text" id="minSigL" value="0.98" size="5" >
                         <div id="minSigLE"></div>
                     </td>
                 </tr>
@@ -1182,18 +1196,20 @@ Sandcastle.addDefaultToolbarMenu([
                 idToIndex[j] = mymodelJ.name;
                 if (i != j ){//&& (j  == (i + 1) % 12) || (j  == (i + 2) % 12)) {
 
+                    var birdPosCallback = new Cesium.CallbackProperty(function(time) {
+                        //console.log(mymodel.position.getValue(time).x);
+                        return [mymodelJ.position.getValue(time), mymodel.position.getValue(time)];
+                    }, false);//false meaning is not constant
+
+
                     let theLfArc = viewer.entities.add({
                         name : 'The Leader Follower Arc from' + i + ' to ' + j,
                         id : 'arc' + i + 'to' + j,
                         polyline : {
-                            positions :
-                            new Cesium.CallbackProperty(function(time) {
-                                //console.log(mymodel.position.getValue(time).x);
-                                return [mymodelJ.position.getValue(time), mymodel.position.getValue(time)];
-                            }, false),//false meaning is not constant
-                            width : 10,
+                            positions : birdPosCallback,
+                            width : 20,
                             followSurface : false,
-                            material : new Cesium.PolylineArrowMaterialProperty(Cesium.Color.RED),
+                            material : new Cesium.PolylineArrowMaterialProperty(Cesium.Color.RED.withAlpha(0.5)),
                             show: new Cesium.CallbackProperty(function(time) {
                                 //console.log(mymodel.position.getValue(time).x);
                                 let dTime = Cesium.JulianDate.secondsDifference(time, viewer.clock.startTime);
@@ -1201,6 +1217,51 @@ Sandcastle.addDefaultToolbarMenu([
                             }, false),//false meaning is not constant
                         }
                     });
+
+
+/*
+                    let primitive = new Cesium.Primitive({
+                        geometryInstances : new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                id: 'primitive' + i + 'to' + j,
+                                positions : birdPosCallback,
+                                width : 2.0,
+                                vertexFormat : Cesium.PolylineColorAppearance.VERTEX_FORMAT,
+                                colors: [Cesium.Color.WHITE.withAlpha(0.1) , Cesium.Color.RED ],
+                                colorsPerVertex: true
+                           })
+                        }),
+                        appearance : new Cesium.PolylineColorAppearance({
+                            translucent : false
+                        })
+                    });
+*/
+
+                    /*
+
+                    var primitive = new Cesium.Primitive({
+                      geometryInstances : new Cesium.GeometryInstance({
+                        geometry : new Cesium.PolylineGeometry({
+                          positions : Cesium.Cartesian3.fromDegreesArrayHeights([-75, 43, 500000,
+                                                                                   -125, 43, 500000]),
+                          width : 2.0,
+                          vertexFormat : Cesium.PolylineColorAppearance.VERTEX_FORMAT,
+                          colors: [Cesium.Color.WHITE.withAlpha(0.1) ,Cesium.Color.RED ],
+                          colorsPerVertex: true
+                        })
+                      }),
+                      appearance : new Cesium.PolylineColorAppearance({
+                        translucent : false
+                      })
+                    });
+
+                    viewer.scene.primitives.add(primitive);
+
+                    */
+
+
+
+
                     //console.log(theLfArc.id + " name " + theLfArc.name);
                     //console.log("NAME: " + mymodel.name);
                     //console.log("ID: " + mymodel.id);
@@ -1804,6 +1865,7 @@ function parseData(createVis) {
             createVis(result.data);
             drawTimelineBar(UPPERBAR);
             drawTimelineBar(LOWERBAR);
+            drawMatrix();
 
         }
     });
@@ -1815,12 +1877,14 @@ const JID = 2;
 const TAU = 3;
 const CORRELATION = 4;
 
+
+// TODO: get datalength from somewhere else
 const DATALENGTH = 300; // length of data time intervall in seconds
 
 
 var rangeLF = 1; //Achtung nur vorrübergehend
 var birdCount = 12;
-
+// TODO: get birdcount from somewhere else
 
 var pythonLFdata = [];
 var pythonLFdataHighSigni = [];
@@ -1883,11 +1947,11 @@ function idToIndexFunc (birdNameNumber){
 
 function getShowStatus(iName ,jName ,deltaTime) {
 
-    var i = idToIndexFunc(iName) + 1; // as bird Index starts witch 1
-    var j = idToIndexFunc(jName) + 1;
+    var i = idToIndexFunc(iName); // as bird Index starts witch 1
+    var j = idToIndexFunc(jName);
     let tLF = Math.round(deltaTime);
     //console.log(tLF + " " + i + " " + j);
-    var bool = pythonLFlookup[tLF][i-1][j-1];
+    var bool = pythonLFlookup[tLF][i][j];
     if (bool == undefined){
         bool = false;
         console.log("VALUE undefinded in getShowStatus")
@@ -1916,7 +1980,8 @@ function getShowStatus(iName ,jName ,deltaTime) {
 }
 
 
-parseData(createVis); //Aufruf wird verwendet um initial daten in Array zu speichern
+//parseData(createVis); //Aufruf wird verwendet um initial daten in Array zu speichern
+
 
 
 const UPPERBAR = 0;
@@ -1955,8 +2020,48 @@ var waitForFinalEvent = (function () {
   };
 })();
 
+
+function drawMatrix() {
+    console.log("Start to draw Matrix");
+    //var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'].reverse();
+    var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
+    var color = myColors[0];
+    var htmlString = '';
+
+    let TOTALNUMBER = 12; // TODO: get from somewhere else
+    for (var i = 0; i < TOTALNUMBER; i++) {
+        let top = i * 10; // +2 ?
+        let pos = 0;
+
+        for (var j = 0; j < TOTALNUMBER; j++) {
+            let id = (i + j) % myColors.length;
+            let color = getMatrixColor(i,j);
+            let width = 10;
+            htmlString += '<div id=lfdiv' + i
+            + ' class="lfMatrix" style="background: '+ color
+            + '; left: '+ pos +'px' + '; width: '+ width +'px ; top: '+ top +'px"></div>';
+            pos += width;
+        }
+    }
+
+    document.getElementById('matrixVis').innerHTML = htmlString;
+
+}
+
+
+function getMatrixColor(i,j) {
+    var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
+    let dTime = Math.round(Cesium.JulianDate.secondsDifference(viewer.clock.currentTime, viewer.clock.startTime));
+
+    if (pythonLFlookup[dTime][i][j]){
+        return myColors[7];
+    } else {
+        return myColors[0];
+    }
+}
+
 function drawTimelineBar(id) {
-    console.log("Start to Draw Timeline");
+    console.log("Start to draw Timeline");
 
     /*
     if (id === UPPERBAR){
@@ -1971,8 +2076,8 @@ function drawTimelineBar(id) {
 
     var pos = 0;
     var width = 1;
-    var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'].reverse();
-    //var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
+    //var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'].reverse();
+    var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
     var color = myColors[0];
     //var htmlStringID;
     var htmlString = '';

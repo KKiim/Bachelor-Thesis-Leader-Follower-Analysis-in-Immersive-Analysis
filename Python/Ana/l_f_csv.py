@@ -98,7 +98,7 @@ def get_list(l_f_param):
             for birdJ in allBirds:
                 if birdI != birdJ:
                     sumTauList = []
-                    for tau in range(0, tauRange):
+                    for tau in range(1, tauRange):  # instead of starting at 0
                         sumB = 0
                         for t in range(tOffs - tInt, tOffs + 1 + tInt):
                             vDotProd = np.dot(birdI.speedNorm[t],
