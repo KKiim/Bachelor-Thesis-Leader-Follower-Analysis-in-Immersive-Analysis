@@ -1,12 +1,17 @@
-# Bachelor-Project: Time Synchronization for Multiple Cesium Instances
+# Bachelor-Thesis: Leader-Follower Analysis in Immersive Analysis
 * Mentor, University: Dr. Karsten Klein, Universität Konstanz
+* Primary Supervisor: Prof. Falk Schreiber, Universität Konstanz
+* Secondary Supervisor: Dr. Mate Nagy, Universität Konstanz & Max-Planck-Institut für Ornithologie
 * Student: Kim Lasse Rehberg
 
 
 ###  Abstract
-This Implementation creates the Websocket Server to synchronize multible Cesium instances of the Bird Visualisation.
+This imlpementation creates an immersive enviroment. GPS-Tracks of flocks can be loaded. They will be visualized on a Cesium based Globe. You can run analysis written in Pyhton to determine the times when one individuum is following an other.
 
 ### Initial Setup
+
+Copy the whole folder in your running Cesium Folder.
+
 
 The WS folder may be placed anyware on your PC.
 
@@ -22,6 +27,16 @@ The FlyingBird folder goes in Apps/SampleData/models
 
 
 ### Start the App
+
+Type node server.js in your Console. 
+
+Open http://localhost:<port>/Apps/Sandcastle/gallery/1SyncBird.html in your Browser(Chrome or Firefox).
+
+
+
+
+
+[optional for synchronisation]
 
 Start the WebSocket:
 * cd to the WS folder
