@@ -30,7 +30,7 @@ The FlyingBird folder goes in Apps/SampleData/models
 
 Type node server.js in your console. 
 
-Open <localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html> in your Browser(Chrome or Firefox).
+Open *localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html* in your Browser(Chrome or Firefox).
 
 
 
