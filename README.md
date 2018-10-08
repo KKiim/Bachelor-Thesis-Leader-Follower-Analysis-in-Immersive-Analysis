@@ -47,20 +47,15 @@ Start the WebSocket:
 
 Start Cesium:
 
-  * On a Windows with node just start it the usaual way: cd to Cesium and <node server.js>
+* On a Windows with node just start it the usaual way: cd to Cesium and <node server.js>
   * Master Display: localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html?mode=master
   * Slave Displays: localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html?mode=slave
-OR
-* Host this directory on a server.
+ 
+* Host this directory on a Apache server(Linux).
   * On a Linux machine with an Apache server, it could be placed at /var/www/html/ the application can now be accessed at:
-  * Master Display: localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html?mode=m
-  * Slave Displays: localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html?mode=s
-OR
+* A local server could be created via python modul:
   * On Windows/Linux/Mac? machine you can use python2 with the command: python -m SimpleHTTPServer <port>
   * On Windows/Linux/Mac? machine you can use python3 with the command: py -m http.server <port>
-  * In this case:
-   * Master Display: localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html?mode=m
-   * Slave Displays: localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html?mode=s
 
   on your web browser(not Windows Edge).
 
