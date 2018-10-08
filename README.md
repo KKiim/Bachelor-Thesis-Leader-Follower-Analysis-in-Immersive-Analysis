@@ -35,6 +35,9 @@ Open http://localhost:<port>/Apps/Sandcastle/gallery/1SyncBird.html in your Brow
 
 
 
+.
+.
+.
 
 [optional for synchronisation]
 
