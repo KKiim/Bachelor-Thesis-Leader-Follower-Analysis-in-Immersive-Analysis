@@ -47,7 +47,7 @@ Start the WebSocket:
 
 Start Cesium:
 
-* Just start it the usaual way: cd to Cesium and <node server.js>
+* Just start it the usaual way: cd to Cesium and *node server.js* starts the server.
   * Master Display: localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html?mode=master
   * Slave Displays: localhost:8080/Apps/Sandcastle/gallery/1PythonLF.html?mode=slave
  
