@@ -8,7 +8,7 @@ l_f_param = {
     'maxDist': 100
 }
 
-print (l_f_param['tStepIntervall'])
+print ("The intervall length is: " + str(l_f_param['tStepIntervall']))
 
 list = lf.get_list(l_f_param)
 

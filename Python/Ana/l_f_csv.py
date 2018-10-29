@@ -6,7 +6,8 @@ import math
 import numpy as np
 import numpy.linalg as npl
 import xml.etree.ElementTree as ET
-tree = ET.parse('Python/Ana/2014-08-07-70.kml')
+#tree = ET.parse('Python/Ana/2014-08-07-70.kml')
+tree = ET.parse('Python/Ana/pigeonHQ.kml')
 root = tree.getroot()
 ts = []
 coord = []
@@ -32,8 +33,9 @@ class Bird(object):
         self.speedNorm = speedNorm
 
 
+# .%f
 for n in root.iter('{http://www.opengis.net/kml/2.2}when'):
-    ts.append(datetime.datetime.strptime(n.text, "%Y-%m-%dT%H:%M:%SZ"))
+    ts.append(datetime.datetime.strptime(n.text, "%Y-%m-%dT%H:%M:%S.%fZ"))
     if countAll > 0:
         if (ts[countAll] - ts[countAll - 1]) < datetime.timedelta(0):
             newBirdIndexList.append(countAll)
