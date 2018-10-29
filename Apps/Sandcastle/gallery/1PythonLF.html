@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="description" content="Bird data visualization.">
+    <meta name="cesium-sandcastle-labels" content="Showcases, DataSources">
+    <title>CLS Bird Flight Analysis</title>
+    <script type="text/javascript" src="../Sandcastle-header.js"></script>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+    <!--<script type="text/javascript" src="../../../ThirdParty/requirejs-2.1.20/require.js"></script> -->
+	<!-- <script data-main="d3.js" src="../../../ThirdParty/requirejs-2.1.20/require.js"></script> -->
+	<!-- <script type="text/javascript" src="d3.min.js"></script> -->
+
+    <!-- Things for Syncronization -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+    <script src="/../../../Build/Cesium/Cesium.js"></script>
+    <script src="/../../../Sync/js/reconnecting-websocket.js"></script>
+    <script src="/../../../Sync/./web-config.js"></script>
+    <script src="/../../../Sync/js/util.js"></script>
+    <script src="/../../../Sync/js/Long.min.js"></script>
+    <script src="/../../../Sync/js/ByteBufferAB.min.js"></script>
+    <script src="/../../../Sync/js/ProtoBuf.min.js"></script>
+    <script>
+        if (typeof dcodeIO === 'undefined' || !dcodeIO.ProtoBuf) {
+            throw (new Error("ProtoBuf.js is not present. Please see www/index.html for manual setup instructions."));
+        }
+        // Initialize ProtoBuf.js
+        var ProtoBuf = dcodeIO.ProtoBuf;
+        var CesiumSync = ProtoBuf.loadProtoFile("/../../../Sync/cesiumsync.proto").build("CesiumSync");
+    </script>
+
+    <script src="/../../../Python/Dep/papaparse.min.js"></script>
+
+    <script type="text/javascript" src="../../../ThirdParty/requirejs-2.1.20/require.js"></script>
+    <!-- End of things for Syncronization -->
+
+    <script type="text/javascript">
+    require.config({
+        baseUrl : '../../../Source',
+        waitSeconds : 60
+    });
+    </script>
+</head>
+
+<body class="sandcastle-loading" data-sandcastle-bucket="bucket-requirejs.html">
+    <style>
+        @import url(../../../Build/Cesium/Widgets/widgets.css);
+        @import url(../templates/bucket.css);
+
+        @const boundary: 250px;
+
+        :root{
+            --leftmar: 20px;
+            --altspanheight: 180px;
+            --boundary: 200px;
+            --bartop: 280px;
+            --timelinewidth: 700px;
+        }
+        .telement{
+            --altspanheight: 180px;
+        }
+
+        .chart rect {
+            fill: steelblue;
+        }
+
+        .chart text {
+            fill: white;
+            font: 10px sans-serif;
+            text-anchor: end;
+        }
+
+
+
+        .controlPanel3 {
+            position: absolute;
+            top: var(--bartop);
+            left: var(--leftmar);
+            background: rgba(42, 42, 42, 0.8);
+            color: #edffff;
+            white-space: nowrap;
+            padding: 4px 8px;
+            border-radius: 4px;
+            min-width: 20px;
+            min-height: var(--boundary);
+            max-width: 30px;
+            max-height: var(--boundary);
+        }
+
+
+        .controlPanel4 {
+            display: block;
+            position: absolute;
+            left: 1px;
+        }
+
+        .controlPanel5 {
+            display: block;
+            position: absolute;
+        }
+
+        .d3panel {
+            position: absolute;
+            top: 500px;
+            left: var(--leftmar);
+            background: rgba(42, 42, 42, 0.8);
+            color: #edffff;
+            white-space: nowrap;
+            padding: 4px 8px;
+            border-radius: 4px;
+            min-width: 100px;
+            min-height: 10%;
+            max-width: 250px;
+            max-height: 12%;
+            opacity: 0.37;
+            filter: alpha(opacity=50);
+        }
+        .d3panel:hover {
+            opacity: 1.0;
+            filter: alpha(opacity=100); /* For IE8 and earlier */
+        }
+        .cesium-infoBox {
+            width: 25%;
+            max-width: none;
+        }
+
+        .controlPanel2 {
+            position: auto;
+            top: 50px;
+            left: 1600px;
+            background: rgba(42, 42, 42, 0.8);
+            color: #edffff;
+            white-space: nowrap;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .controlPanel2 {
+            position:auto;
+            z-index: 1;
+            height: 15%;
+            min-width: 20px;
+            min-height: 200px;
+            max-width: 500px;
+            margin: 0 auto;
+            text-align:center;
+            opacity: 0.37;
+            filter: alpha(opacity=50);
+        }
+        .controlPanel2:hover {
+            opacity: 1.0;
+            filter: alpha(opacity=100); /* For IE8 and earlier */
+        }
+
+
+        .chart div {
+            font: 10px sans-serif;
+            background-color: steelblue;
+            background: rgba(142, 142, 142, 0.8);
+            text-align: right;
+            padding: 3px;
+            margin: 1px;
+            color: white;
+        }
+        .chartline div {
+            font: 10px sans-serif;
+            background-color: orangered;
+            background: yellow;
+            text-align: right;
+            color: white;
+        }
+
+        .hidden>div {
+            visibility:hidden;
+        }
+
+        .visible>div {
+            visibility:visible;
+        }
+
+        .dropbtn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+
+        }
+
+        .runbtn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        /*.dropdown-content a:hover {background-color: #ddd;}*/
+
+        .dropdown:hover .dropdown-content {display: block;}
+
+        .dropdown:hover .dropbtn {display: none;}
+
+
+        .altErnative {
+            width: 10px;
+            height: 2px;
+            position: absolute;
+            background: darkgrey;
+        }
+
+        .lfRelation {
+            height: 10px;
+            top: 2px;
+            position: absolute;
+        }
+
+        .lfMatrix {
+            height: 10px;
+            top: 2px;
+            position: absolute;
+        }
+
+        #altAnimation {
+            width: 20px;
+            height: 2px;
+            position: absolute;
+            background: red;
+        }
+
+        #altSpan {
+            width: 5px;
+            height: var(--altspanheight);
+            position: absolute;
+            background: white;
+            top: 10px;
+            left: var(--leftmar);
+        }
+
+        #lfSpan {
+            width: var(--altspanheight);
+            height: 5px;
+            position: absolute;
+            background: white;
+            top: 10px;
+            left: var(--leftmar);
+        }
+
+        #toolbarPyhton {
+            bottom: 30px;
+            right: 0px;
+            position: absolute;
+            background: rgba(42, 42, 42, 0.8);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        #timelineUpper {
+            bottom: 50px;
+        }
+
+        #timelineLower {
+            bottom: 40px;
+        }
+
+        #matrixVis {
+            bottom: 170px;
+        }
+
+        #legendTimeline {
+            bottom: 170px;
+            left:90;
+        }
+
+
+        </style>
+
+<div class="fullSize" id="cesiumContainer"></div>
+<div id="loadingOverlay"><h1>Loading...</h1></div>
+<div id="toolbar"></div>
+
+<div id="timelineUpper" class="controlPanel4" ></div>
+
+<div id="timelineLower" class="controlPanel4" ></div>
+
+<div id="matrixVis" class="controlPanel4" ></div>
+
+<div id="legendTimeline" class="controlPanel3" >
+    _
+</div>
+
+
+<div id="toolbarPyhton">
+    <div class="dropdown">
+        <button class="dropbtn">L-F</button>
+        <div class="dropdown-content">
+            <table>
+                <tbody><tr>
+                    <td><input type="checkbox" id="lfAktiv" > Show</td>
+                </tr>
+                <tr>
+                    <td>tau-range [s]</td>
+                    <td>
+                        <input type="text" id="tauRange" value="2" size="5" >
+                        <div id="tauRangeE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>step [s]</td>
+                    <td>
+                        <input type="text" value="1" id="step" size="5" >
+                        <div id="stepE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>min. significance high</td>
+                    <td>
+                        <input type="text" id="minSigH" value="0.99" size="5" >
+                        <div id="minSigHE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>min. significance low</td>
+                    <td>
+                        <input type="text" id="minSigL" value="0.98" size="5" >
+                        <div id="minSigLE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>intervall length [s]</td>
+                    <td>
+                        <input type="text" id="interLength" value="6" size="5" >
+                        <div id="interLengthE"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>max. distance [m]</td>
+                    <td>
+                        <input type="text" id="maxDist" value="80" size="5" >
+                        <div id="MaxDistE"></div>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+            <button class="runbtn" id=runBut>Run</button>
+
+        </div>
+    </div>
+</div>
+
+<script id="cesium_sandcastle_script">
+
+function startup(Cesium) {
+    'use strict';
+//Sandcastle_Begin
+
+
+//<SSS Cesium Synchronisatoin
+    var modus;
+
+    var url_string = window.location.href;
+    var url = new URL(url_string);
+    console.log(url);
+    modus = url.searchParams.get("mode");
+    console.log(modus);
+
+
+    if (modus == 'master' || modus == 'm') {
+        modus = 'master'
+    } else if (modus == 'slave' || modus == 's'){
+        modus = 'slave'
+    } else {
+        modus = 'basic'
+    }
+
+    $.getScript('/../../../Sync/' + modus +'.js', function() {
+
+//>SSS
+
+
+const TIME = 0;
+const IID = 1;
+const JID = 2;
+const TAU = 3;
+const CORRELATION = 4;
+const STORCH = 0;
+const PIGEON = 1;
+var rangeLF = 1; //Achtung nur vorrübergehend
+var datalength = 300; // TODO: get datalength from somewhere else
+var datares = 0.25; // in seconds
+var birdCount = 8;
+// TODO: get birdcount from somewhere else
+
+//var property; //positions
+var birds = [];
+var idToIndex = [];
+var pythonLFdata = [];
+var pythonLFdataHighSigni = [];
+
+var pythonLFlookup = [];
+for ( var t = 0; t < datalength; t++) {  //t = t + step
+    pythonLFlookup[t] = [];
+    for (var i = 0; i < birdCount; i++) {
+        pythonLFlookup[t][i] = [];
+        for (var j = 0; j < birdCount; j++) {
+            pythonLFlookup[t][i][j] = false;
+        }
+    }
+}
+
+function setInputdata(type){
+    if(type == STORCH){
+        datalength = 300
+        datares = 1
+    }else if(type == PIGEON){
+        datalength = 300
+        datares = 0.25
+    } else {
+        console.log("UNDEFINDED DATATYPE")
+    }
+}
+
+
+var options = {
+    camera : viewer.scene.camera,
+    canvas : viewer.scene.canvas
+};
+
+//'../../SampleData/kml/2014-08-07-70.kml'
+
+viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/pigeon/pigeonHQ.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
+    //property = new Cesium.SampledPositionProperty();
+
+    viewer.clock.multiplier = 1;
+    viewer.camera.flyHome(0);
+
+
+
+
+    var mydata = dataSource.entities.values;
+    var loopSize = mydata.length;
+    console.log(loopSize);
+
+
+
+
+
+    for (let i = 0; i < loopSize; i++) {
+        let mymodel = mydata[i];
+
+        if (true) {
+        for (let j = 0; j < loopSize; j++) {
+            let mymodelJ = mydata[j];
+            idToIndex[j] = mymodelJ.name;
+            if (i != j ){
+
+                var birdPosCallback = new Cesium.CallbackProperty(function(time) {
+                    //console.log(mymodel.position.getValue(time).x);
+                    return [mymodelJ.position.getValue(time), mymodel.position.getValue(time)];
+                }, false);//false meaning is not constant
+
+
+                let theLfArc = viewer.entities.add({
+                    name : '#' + j + ' follows #' + i,
+                    id : 'arc' + i + 'to' + j,
+                    polyline : {
+                        positions : birdPosCallback,
+                        width : 20,
+                        //scale: 0.001, no effect
+                        followSurface : false,
+                        material : new Cesium.PolylineArrowMaterialProperty(Cesium.Color.RED.withAlpha(0.5)),
+                        show: new Cesium.CallbackProperty(function(time) {
+                            //console.log(mymodel.position.getValue(time).x);
+                            let dTime = Cesium.JulianDate.secondsDifference(time, viewer.clock.startTime);
+                            return getShowStatus(mymodel.name, mymodelJ.name, dTime)
+                        }, false),//false meaning is not constant
+                    }
+                });
+
+            }
+        } // End of for Loop over j
+        }
+
+
+        var theBird = birds.push(
+            viewer.entities.add({
+                position: mymodel.position,
+                orientation: new Cesium.VelocityOrientationProperty(mymodel.position),
+                model: {
+                    uri: '../../SampleData/models/FlyingBird/storch_model_2017__1_7lq90.glb',//FalconRotate.gltf', //FalconColor.glb', //Duck.gltf',//bird.gltf /b789.glb
+                    minimumPixelSize: 32,
+                    color: Cesium.Color.LIGHTGREY,//YELLOW
+                    scale: 0.05 //0.3 for pigeon
+                },
+                name: i,  //.id
+                path: {
+                    resolution: 1,
+                    leadTime: 0,
+                    trailTime: 20,
+                    material: Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0.5),
+                    width: 2
+                },
+                myIndex : i,
+            }));
+
+        if (i >= 0) {
+               mymodel.show = false;
+        }
+
+    } //End of for loop over i
+
+    viewer.clock.shouldAnimate = false;
+    viewer.trackedEntity = birds[0];
+    viewer.selectedEntity = viewer.trackedEntity;
+    viewer.clock.multiplier = 1;
+    viewer.clock.shouldAnimate = true;
+});
+
+parseData(createVis);
+
+
+//timed Update of MatrixVis
+window.setInterval(function() {
+        drawMatrix();
+}, 200)
+
+
+
+function drawTimelineBar(id) {
+    console.log("Start to draw Timeline");
+
+    timelineCountArray[id] = getTimelineCountArray(id);
+
+    var pos = 0;
+    var width = 1;
+    //var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'].reverse();
+    var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
+    var color = myColors[0];
+    var htmlString = '';
+    var maxVal = 1;
+
+
+
+    // TODO: maxVal für Legende verwenden
+    for (var index = 0; index < timelineCountArray[id].length; index++){
+        var val = timelineCountArray[id][index];
+        if( val > maxVal){
+            maxVal = val
+        }
+    }
+
+
+    var sLFbar = function (value) {
+        //return value
+        return Math.log(value + 1); //log(0) = infinity
+    };
+    var lfBarWidth = getLFbarWidth();
+    var bucketWidth = 1;
+    console.log(lfBarWidth)
+    for (var pixel = 0; pixel < lfBarWidth; pixel++){
+
+        var index = Math.round( datalength * (pixel / lfBarWidth));//pixel = bucketCount
+
+
+        let normVal = sLFbar(timelineCountArray[id][index]) / sLFbar(maxVal);
+        let colorID = Math.round(normVal * (myColors.length - 1));
+
+        color = myColors[colorID];
+        pos = pos + width;
+
+
+        //htmlStringID += ids
+        htmlString += '<div id=lfdiv' + index
+        + ' class="lfRelation" style="background: '+ color
+        + '; left: '+ pos +'px' + '; width: '+ width +'px"></div>';
+
+    }
+
+    if (id === UPPERBAR){
+        document.getElementById('timelineUpper').innerHTML = htmlString;
+    } else {
+        document.getElementById('timelineLower').innerHTML = htmlString;
+    }
+
+
+    $( "#runBut" ).css('background-color', '#4CAF50');
+    $( ".dropbtn" ).css('background-color', '#4CAF50');
+}
+
+function getTimelineCountArray(id) {
+    timelineCountArray[id].fill(0);
+    console.log("Drawing TimelineBar")
+    var time;
+    var dataArray;
+    if (id === UPPERBAR){
+        dataArray = pythonLFdataHighSigni;
+    } else {
+        dataArray = pythonLFdata;
+    }
+    var plfLength = dataArray.length; //could be more general
+    if (plfLength > 1){
+
+    } else {
+        throw (new Error("The Array pythonLFdata is empty in drawTimelineBar"));
+    }
+
+    var plfIndex = 1; //needs to start with 1
+    for (var timeInSec = 0; timeInSec < datalength - 1; timeInSec++){
+        time = dataArray[plfIndex][TIME];
+
+        while( time == timeInSec && plfIndex < plfLength - 1){
+            timelineCountArray[id][timeInSec]++;
+            time = dataArray[plfIndex][TIME];
+            plfIndex++;
+        }
+        //console.log("timelineCountArray:" + timelineCountArray[timeInSec]);
+    }
+
+    //Testing
+    console.log("first time and count: " + timelineCountArray[id][0] + ", " + timelineCountArray[id][299]);
+
+    return timelineCountArray[id];
+}
+
+
+function parseData(createVis) {
+    Papa.parse("/../../../Python/Data/LFdata.csv", {
+        download: true,
+        complete: function(result) {
+            console.log("Data read from CSV");
+            createVis(result.data);
+            drawTimelineBar(UPPERBAR);
+            drawTimelineBar(LOWERBAR);
+            drawMatrix();
+
+        }
+    });
+}
+
+function createVis(lfData) {
+    console.log("Start to draw the Arcs");
+    pythonLFdata = lfData;
+    pythonLFdataHighSigni = [];
+    for (var indexLF = 1 ; indexLF < pythonLFdata.length; indexLF++) {
+
+        if (pythonLFdata[indexLF][CORRELATION] > lfMinSigniH){
+            pythonLFdataHighSigni.push(pythonLFdata[indexLF]);
+        }
+    }
+
+
+    for ( var t = 0; t < datalength; t++) {  //t = t + step
+        pythonLFlookup[t] = [];
+        for (var i = 0; i < birdCount; i++) {
+            pythonLFlookup[t][i] = [];
+            for (var j = 0; j < birdCount; j++) {
+                pythonLFlookup[t][i][j] = false;
+            }
+        }
+    }
+
+    for (indexLF = 1; indexLF < pythonLFdataHighSigni.length; indexLF++ ){
+        let t = pythonLFdataHighSigni[indexLF][TIME];
+        let i = pythonLFdataHighSigni[indexLF][IID] - 1;
+        let j = pythonLFdataHighSigni[indexLF][JID] - 1;
+        pythonLFlookup[t][i][j] = true;
+    }
+
+    //console.log(pythonLFlookup);
+    console.log("00 = " + pythonLFdata[0][TIME]);
+    console.log("01 = " + pythonLFdata[0][IID]);
+    console.log("10 = " + pythonLFdata[1][TIME]);
+}
+
+
+function startPythonAna(){
+    var l_f_param = {
+        'tauRange': Number(lfTauRange),
+        'timeResolution': Number(lfTimeResolution),
+        'minSigni': Number(lfMinSigniL),
+        'tStepIntervall': Number(lfTstepIntervall),
+        'maxDist': Number(maxDist)
+    };
+
+    $.ajax({
+        url: '/lfOutput', //versuch products
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(l_f_param),
+        success: function(response) {
+            console.log(response);
+            parseData(createVis);
+        }
+    });
+}
+
+
+function getShowStatus(iName ,jName ,deltaTime) {
+
+    var i = idToIndexFunc(iName); // as bird Index starts witch 1
+    var j = idToIndexFunc(jName);
+    let tLF = Math.round(deltaTime);
+    //console.log(tLF + " " + i + " " + j);
+    var bool = pythonLFlookup[tLF][i][j];
+    if (bool == undefined){
+        bool = false;
+        console.log("VALUE undefinded in getShowStatus")
+    }
+    return bool;
+}
+
+function idToIndexFunc (birdNameNumber){
+    for (let index = 0; index < idToIndex.length; index++){
+        var string = idToIndex[index]
+        if (birdNameNumber === string){
+            return index;
+        }
+    }
+    console.log("something went wrong in the function: idToIndexFunc")
+    return index
+}
+
+function drawMatrix() {
+    console.log("Start to draw Matrix");
+    //var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'].reverse();
+    var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
+    var color = myColors[0];
+    var htmlString = '';
+
+    for (var i = 0; i < birdCount; i++) {
+        let top = i * 10; // +2 ?
+        let pos = 0;
+
+        for (var j = 0; j < birdCount; j++) {
+            let id = (i + j) % myColors.length;
+            let color = getMatrixColor(i,j);
+            let width = 10;
+            htmlString += '<div id=lfdiv' + i
+            + ' class="lfMatrix" style="background: '+ color
+            + '; left: '+ pos +'px' + '; width: '+ width +'px ; top: '+ top +'px"></div>';
+            pos += width;
+        }
+    }
+
+    document.getElementById('matrixVis').innerHTML = htmlString;
+
+}
+
+
+function getMatrixColor(i,j) {
+    var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
+    let dTime = Math.round(Cesium.JulianDate.secondsDifference(viewer.clock.currentTime, viewer.clock.startTime));
+
+    if (pythonLFlookup[dTime][i][j]){
+        return myColors[7];
+    } else {
+        return myColors[0];
+    }
+}
+
+
+
+
+
+
+var lfTauRange = $( "#tauRange" ).val();
+var lfTimeResolution = $( "#step" ).val();
+var lfMinSigniH = $( "#minSigH" ).val();
+var lfMinSigniL = $( "#minSigL" ).val();
+var lfTstepIntervall = $( "#interLength" ).val();
+var maxDist = $( "#maxDist" ).val();
+
+
+
+$( "#runBut" ).click(function() {
+    console.log("Run Button was clicked");
+    startPythonAna();
+    $(this).css('background-color', '#e31a1c');
+    $( ".dropbtn" ).css('background-color', '#e31a1c');
+
+
+})
+
+
+
+$( "#tauRange" ).change(function() {
+    lfTauRange = this.value;
+    if(this.value == 3)
+        document.getElementById("tauRangeE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("tauRangeE").innerHTML = '';
+})
+
+$( "#step" ).change(function() {
+    lfTimeResolution = this.value;
+    if(this.value == 3)
+        document.getElementById("stepE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("stepE").innerHTML = '';
+})
+
+$( "#minSigH" ).change(function() {
+    lfMinSigniH = this.value;
+    if(this.value == 3)
+        document.getElementById("minSigHE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("minSigHE").innerHTML = '';
+})
+
+$( "#minSigL" ).change(function() {
+    lfMinSigniL = this.value;
+    if(this.value == 3)
+        document.getElementById("minSigLE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("minSigLE").innerHTML = '';
+})
+
+$( "#interLength" ).change(function() {
+    lfTstepIntervall = this.value;
+    if(this.value == 3)
+        document.getElementById("interLengthE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("interLengthE").innerHTML = '';
+})
+
+$( "#maxDist" ).change(function() {
+    maxDist = this.value;
+
+    if(this.value == 3)
+        document.getElementById("MaxDistE").innerHTML = "Hier Fehlermeldung in den Text";
+    else
+        document.getElementById("MaxDistE").innerHTML = '';
+})
+
+
+
+const UPPERBAR = 0;
+const LOWERBAR = 1;
+
+let arrUpper = new Array(datalength);
+let arrLower = new Array(datalength);
+
+var timelineCountArray = new Array(2);
+
+timelineCountArray[UPPERBAR] = arrUpper;
+timelineCountArray[LOWERBAR] = arrLower;
+
+timelineCountArray[UPPERBAR].fill(0);
+timelineCountArray[LOWERBAR].fill(0);
+
+//window.onresize = function(){drawTimelineBar()} //if it should be resizid as fast as possible
+$(window).resize(function () {
+    waitForFinalEvent(function(){
+        drawTimelineBar(UPPERBAR);
+        drawTimelineBar(LOWERBAR);
+  }, 500, "rezise timline Bar!");
+});
+
+var waitForFinalEvent = (function () {
+  var timers = {};
+  return function (callback, ms, uniqueId) {
+    if (!uniqueId) {
+      uniqueId = "Don't call this twice without a uniqueId";
+    }
+    if (timers[uniqueId]) {
+      clearTimeout (timers[uniqueId]);
+    }
+    timers[uniqueId] = setTimeout(callback, ms);
+  };
+})();
+
+function getLFbarWidth(){
+    var totalWidth = $(window).width();
+    var minusWidth = 30; // fullscreenButtonSize
+    if (typeof viewer.animation !== 'undefined'){
+        minusWidth += 169;
+        let left = 169;
+        console.log("animation is on")
+        if (totalWidth < 900){
+            minusWidth -= 32;
+            left -= 32;
+        }
+        if (totalWidth < 600){
+            minusWidth -= 32;
+            left -= 32;
+        }
+        $(".controlPanel4").css('left', left);
+    } else {
+        console.log("animation is OFF")
+    }
+
+    if (typeof viewer.vrButton !== 'undefined'){
+        console.log("vrButton is ON");
+        minusWidth += 30;
+    }else {
+        console.log("vrButton is OFF");
+    }
+
+
+    console.log("minusWidth = " + minusWidth);
+    var result = totalWidth - minusWidth;
+    return result;
+}
+
+
+}); // End of synchronization
+
+//Sandcastle_End
+    Sandcastle.finishedLoading();
+} // startup cesium
+if (typeof Cesium !== "undefined") {
+    startup(Cesium);
+} else if (typeof require === "function") {
+    require(["Cesium"], startup);
+}
+
+
+</script>
+<script src="/../../../Python/Dep/jquery.js"> </script>
+
+</body>
+</html>
