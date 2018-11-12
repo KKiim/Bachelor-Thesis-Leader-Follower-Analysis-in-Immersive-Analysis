@@ -6,6 +6,9 @@
     var fs = require('fs');
     var url = require('url');
     var request = require('request');
+    //added
+    var bodyParser = require('body-parser');
+    var fs = require('fs');
 
     var gzipHeader = Buffer.from('1F8B08', 'hex');
 
@@ -42,7 +45,6 @@
     var mime = express.static.mime;
     mime.define({
         'application/json' : ['czml', 'json', 'geojson', 'topojson'],
-        'application/wasm' : ['wasm'],
         'image/crn' : ['crn'],
         'image/ktx' : ['ktx'],
         'model/gltf+json' : ['gltf'],
@@ -52,6 +54,61 @@
     }, true);
 
     var app = express();
+
+
+    /*
+    // Create some Test data
+    var products = [
+    {
+        id: 1,
+        timestamp: 0,
+        leader: 1,
+        follower: 2,
+        tau: 3
+    },
+    {
+        id: 2,
+        timestamp: 0,
+        leader: 2,
+        follower: 4,
+        tau: 3
+    },
+    {
+        id: 3,
+        timestamp: 1,
+        leader: 2,
+        follower: 4,
+        tau: 3
+    }
+    ]
+
+    var lfOutput = [
+    {
+        id: 1,
+        timestamp: 0,
+        leader: 1,
+        follower: 2,
+        tau: 3
+    },
+    {
+        id: 2,
+        timestamp: 0,
+        leader: 2,
+        follower: 4,
+        tau: 3
+    }
+    ]
+
+    var currentId = 3;
+    */
+
+
+
+
+
+    //ADDED for python_l_f
+    app.use(bodyParser.json());
+
     app.use(compression());
     app.use(function(req, res, next) {
         res.header('Access-Control-Allow-Origin', '*');
@@ -80,6 +137,108 @@
     app.get(knownTilesetFormats, checkGzipAndNext);
 
     app.use(express.static(__dirname));
+
+
+    //test for testdata
+    app.get('/products', function(req,res){
+        console.log("Got Product Server line 100")
+        //console.log(req)
+        res.send({products: products});
+    })
+
+    // ACHTUNG wird genutzt
+    app.post('/lfOutput', function(req, res) {
+        //console.log(req.body);
+        //var tauRange = req.body.tauRange;
+        //var timeResolution = req.body.timeResolution;
+
+        var l_f_param = req.body;
+
+
+        //start.js
+        var spawn = require('child_process').spawn,
+            py    = spawn('python', ['Python/Ana/compute_input.py']),
+            dataString = '';
+
+        console.log(l_f_param);
+
+        py.stdout.on('data', function(data){
+          dataString += data.toString(); //data.toString
+        });
+
+        py.stdout.on('end', function(){
+            var str = dataString;
+            str = str.replace(/\s/g, '');
+            str = str.replace(/\'/g, '');
+            str = str.replace(/\],\[/g, '\n');
+            str = str.replace(/\]/g, '');
+            str = str.replace(/\[/g, '');
+            //var arrOut = str.split(',')
+
+            /*
+            /// write to file
+            var csvFile = "HALLOHALLO.csv";
+            var file = new File(csvFile);
+            var header = "time,iID,jID,tau,correlation";
+
+            file.open("w"); // open file with write access
+            file.writeln(header);
+            for (var count = 0; count < arrOut.length; count += 5 ) {
+                    file.writeln(arrOut[count] +','+ arrOut[count] +','+arrOut[count] +','+arrOut[count] +','+arrOut[count]);
+            }
+            file.close();
+
+
+            arrOut.forEach(function(string) {
+                Number(string)
+                if (string == NaN)
+                    console.log("Erorr in reading Python input (NaN Value)")
+            });
+            */
+
+            fs.writeFile("Python/Data/LFdata.csv", str, function(err) {
+                if(err) {
+                    return console.log(err);
+                }
+
+                console.log("The file was saved!");
+            });
+
+            console.log(str)
+            console.log("send Response to Python l_f_request");
+            res.send("SUCCESS");
+        });
+        py.stdin.write(JSON.stringify(l_f_param));
+        py.stdin.end();
+        console.log("l_f_request send from python module")
+
+
+
+
+        //setTimeout(function() {
+        //    res.send(lfOutput);
+        //}, 2000);
+
+    });
+
+    app.put('/products/:id', function(req, res) {
+        var id = req.params.id;
+        var newName = req.body.newName;
+
+        var found = false;
+
+        products.forEach(function(product, index) {
+            if (!found && product.id === Number(id)) {
+                product.name = newName;
+            }
+        });
+
+        res.send('Succesfully updated product!');
+    });
+
+
+
+
 
     function getRemoteUrlFromParam(req) {
         var remoteUrl = req.params[0];

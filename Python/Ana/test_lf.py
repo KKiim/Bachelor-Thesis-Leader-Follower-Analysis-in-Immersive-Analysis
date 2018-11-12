@@ -5,7 +5,8 @@ l_f_param = {
     'timeResolution': 1,
     'minSigni': 0.85,
     'tStepIntervall': 8,
-    'maxDist': 100
+    'maxDist': 100,
+    'dataset': 0,
 }
 
 print ("The intervall length is: " + str(l_f_param['tStepIntervall']))

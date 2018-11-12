@@ -102,6 +102,11 @@
             left: 1px;
         }
 
+        .controlPanel5 {
+            display: block;
+            position: absolute;
+        }
+
         .d3panel {
             position: absolute;
             top: 500px;
@@ -288,6 +293,13 @@
         #matrixVis {
             bottom: 170px;
         }
+
+        #legendTimeline {
+            bottom: 170px;
+            left:90;
+        }
+
+
         </style>
 
 <div class="fullSize" id="cesiumContainer"></div>
@@ -299,6 +311,11 @@
 <div id="timelineLower" class="controlPanel4" ></div>
 
 <div id="matrixVis" class="controlPanel4" ></div>
+
+<div id="legendTimeline" class="controlPanel3" >
+    _
+</div>
+
 
 <div id="toolbarPyhton">
     <div class="dropdown">
@@ -388,16 +405,22 @@ function startup(Cesium) {
 
 //>SSS
 
-// TODO: get datalength from somewhere else
-const DATALENGTH = 300;
+
 const TIME = 0;
 const IID = 1;
 const JID = 2;
 const TAU = 3;
 const CORRELATION = 4;
-var rangeLF = 1; //Achtung nur vorrübergehend
-var birdCount = 12;
-// TODO: get birdcount from somewhere else
+const STORCH = 0;
+const PIGEON = 1;
+//var rangeLF = 1; //Achtung nur vorrübergehend
+var datalength; // time[s] * datafreq TODO: get datalength from somewhere else
+var datafreq; // in seconds
+var birdCount;
+// TODO: get birdCount from somewhere else
+var dataset = PIGEON;
+setInputdata(dataset);
+var kmlSource = "";
 
 //var property; //positions
 var birds = [];
@@ -406,7 +429,7 @@ var pythonLFdata = [];
 var pythonLFdataHighSigni = [];
 
 var pythonLFlookup = [];
-for ( var t = 0; t < DATALENGTH; t++) {  //t = t + step
+for ( var t = 0; t < datalength; t++) {  //t = t + step
     pythonLFlookup[t] = [];
     for (var i = 0; i < birdCount; i++) {
         pythonLFlookup[t][i] = [];
@@ -416,14 +439,37 @@ for ( var t = 0; t < DATALENGTH; t++) {  //t = t + step
     }
 }
 
+function setInputdata(type){
+    if(type == STORCH){
+        datalength = 300
+        datafreq = 1
+        dataset = STORCH
+        birdCount = 12
+    }else if(type == PIGEON){
+        datalength = 500 // oder 125?
+        datafreq = 4
+        dataset = PIGEON
+        birdCount = 8
+    } else {
+        console.log("UNDEFINDED DATATYPE")
+    }
+}
+
 
 var options = {
     camera : viewer.scene.camera,
     canvas : viewer.scene.canvas
 };
 
+//'../../SampleData/kml/2014-08-07-70.kml'
 
-viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-07-70.kml', options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
+if (dataset == STORCH){
+    kmlSource =  '../../SampleData/kml/2014-08-07-70.kml'
+} else {
+    kmlSource =  '../../SampleData/kml/pigeon/pigeonHQ.kml'
+}
+
+viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
     //property = new Cesium.SampledPositionProperty();
 
     viewer.clock.multiplier = 1;
@@ -454,12 +500,14 @@ viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-0
                     return [mymodelJ.position.getValue(time), mymodel.position.getValue(time)];
                 }, false);//false meaning is not constant
 
+
                 let theLfArc = viewer.entities.add({
                     name : '#' + j + ' follows #' + i,
                     id : 'arc' + i + 'to' + j,
                     polyline : {
                         positions : birdPosCallback,
                         width : 20,
+                        //scale: 0.001, no effect
                         followSurface : false,
                         material : new Cesium.PolylineArrowMaterialProperty(Cesium.Color.RED.withAlpha(0.5)),
                         show: new Cesium.CallbackProperty(function(time) {
@@ -469,6 +517,7 @@ viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-0
                         }, false),//false meaning is not constant
                     }
                 });
+
             }
         } // End of for Loop over j
         }
@@ -481,7 +530,8 @@ viewer.dataSources.add(Cesium.KmlDataSource.load('../../SampleData/kml/2014-08-0
                 model: {
                     uri: '../../SampleData/models/FlyingBird/storch_model_2017__1_7lq90.glb',//FalconRotate.gltf', //FalconColor.glb', //Duck.gltf',//bird.gltf /b789.glb
                     minimumPixelSize: 32,
-                    color: Cesium.Color.LIGHTGREY//YELLOW
+                    color: Cesium.Color.LIGHTGREY,//YELLOW
+                    scale: 0.05 //0.3 for pigeon
                 },
                 name: i,  //.id
                 path: {
@@ -532,7 +582,7 @@ function drawTimelineBar(id) {
 
 
 
-
+    // TODO: maxVal für Legende verwenden
     for (var index = 0; index < timelineCountArray[id].length; index++){
         var val = timelineCountArray[id][index];
         if( val > maxVal){
@@ -550,12 +600,11 @@ function drawTimelineBar(id) {
     console.log(lfBarWidth)
     for (var pixel = 0; pixel < lfBarWidth; pixel++){
 
-        var index = Math.round(DATALENGTH * (pixel / lfBarWidth));//pixel = bucketCount
+        var index = Math.round( datalength * (pixel / lfBarWidth));//pixel = bucketCount
 
 
         let normVal = sLFbar(timelineCountArray[id][index]) / sLFbar(maxVal);
         let colorID = Math.round(normVal * (myColors.length - 1));
-        colorID = colorID;
 
         color = myColors[colorID];
         pos = pos + width;
@@ -597,7 +646,7 @@ function getTimelineCountArray(id) {
     }
 
     var plfIndex = 1; //needs to start with 1
-    for (var timeInSec = 0; timeInSec < DATALENGTH - 1; timeInSec++){
+    for (var timeInSec = 0; timeInSec < datalength - 1; timeInSec++){
         time = dataArray[plfIndex][TIME];
 
         while( time == timeInSec && plfIndex < plfLength - 1){
@@ -641,7 +690,7 @@ function createVis(lfData) {
     }
 
 
-    for ( var t = 0; t < DATALENGTH; t++) {  //t = t + step
+    for ( var t = 0; t < datalength; t++) {  //t = t + step
         pythonLFlookup[t] = [];
         for (var i = 0; i < birdCount; i++) {
             pythonLFlookup[t][i] = [];
@@ -671,7 +720,8 @@ function startPythonAna(){
         'timeResolution': Number(lfTimeResolution),
         'minSigni': Number(lfMinSigniL),
         'tStepIntervall': Number(lfTstepIntervall),
-        'maxDist': Number(maxDist)
+        'maxDist': Number(maxDist),
+        'dataset': Number(dataset)
     };
 
     $.ajax({
@@ -691,7 +741,7 @@ function getShowStatus(iName ,jName ,deltaTime) {
 
     var i = idToIndexFunc(iName); // as bird Index starts witch 1
     var j = idToIndexFunc(jName);
-    let tLF = Math.round(deltaTime);
+    let tLF = Math.round(deltaTime*datafreq);
     //console.log(tLF + " " + i + " " + j);
     var bool = pythonLFlookup[tLF][i][j];
     if (bool == undefined){
@@ -719,12 +769,11 @@ function drawMatrix() {
     var color = myColors[0];
     var htmlString = '';
 
-    let TOTALNUMBER = 12; // TODO: get from somewhere else
-    for (var i = 0; i < TOTALNUMBER; i++) {
+    for (var i = 0; i < birdCount; i++) {
         let top = i * 10; // +2 ?
         let pos = 0;
 
-        for (var j = 0; j < TOTALNUMBER; j++) {
+        for (var j = 0; j < birdCount; j++) {
             let id = (i + j) % myColors.length;
             let color = getMatrixColor(i,j);
             let width = 10;
@@ -742,7 +791,8 @@ function drawMatrix() {
 
 function getMatrixColor(i,j) {
     var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
-    let dTime = Math.round(Cesium.JulianDate.secondsDifference(viewer.clock.currentTime, viewer.clock.startTime));
+    let time = Cesium.JulianDate.secondsDifference(viewer.clock.currentTime, viewer.clock.startTime);
+    let dTime = Math.round(time * datafreq);
 
     if (pythonLFlookup[dTime][i][j]){
         return myColors[7];
@@ -830,8 +880,8 @@ $( "#maxDist" ).change(function() {
 const UPPERBAR = 0;
 const LOWERBAR = 1;
 
-let arrUpper = new Array(DATALENGTH);
-let arrLower = new Array(DATALENGTH);
+let arrUpper = new Array(datalength);
+let arrLower = new Array(datalength);
 
 var timelineCountArray = new Array(2);
 
