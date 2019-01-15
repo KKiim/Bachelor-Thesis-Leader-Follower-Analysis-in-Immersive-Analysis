@@ -11,9 +11,11 @@ var bing = new Cesium.BingMapsImageryProvider({
 var viewer = new Cesium.Viewer('cesiumContainer', {
     imageryProvider : bing,
     baseLayerPicker : false,
-    vrButton : true
+    vrButton : true,
+    //terrainProvider : Cesium.createWorldTerrain()
 });
 
 
 
-//here one may add features that do not be used in sync Mode
+
+//here one may add features that must not be used in sync Mode

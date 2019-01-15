@@ -25,14 +25,29 @@ def get_list(l_f_param):
     countAll = 0
 
     if l_f_param['dataset'] == 0:
-        tree = ET.parse('Python/Ana/2014-08-07-70.kml')
+        tree = ET.parse('Apps/SampleData/kml/2014-08-07-70.kml')
         format = "%Y-%m-%dT%H:%M:%SZ"
         tMax = 300
         datafreq = 1
-    else:
-        tree = ET.parse('Python/Ana/pigeonHQ.kml')
+    elif l_f_param['dataset'] == 1:
+        tree = ET.parse('Apps/SampleData/kml/pigeon/pigeonHQ.kml')
         format = "%Y-%m-%dT%H:%M:%S.%fZ"
-        tMax = 125
+        tMax = 500
+        datafreq = 4
+    elif l_f_param['dataset'] == 2:
+        tree = ET.parse('Apps/SampleData/kml/random30.kml')
+        format = "%Y-%m-%dT%H:%M:%S"
+        tMax = 300
+        datafreq = 1
+    elif l_f_param['dataset'] == 3:
+        tree = ET.parse('Apps/SampleData/kml/pigeon/n30Data.kml')
+        format = "%Y-%m-%dT%H:%M:%S.%fZ"
+        tMax = 1000
+        datafreq = 10
+    elif l_f_param['dataset'] == 4:
+        tree = ET.parse('Python/Ana/coordMod.kml')
+        format = "%Y-%m-%dT%H:%M:%S.%fZ"
+        tMax = 500
         datafreq = 4
 
     root = tree.getroot()
@@ -81,7 +96,7 @@ def get_list(l_f_param):
     nL = newBirdIndexList
 
     for i in range(0, len(newBirdIndexList) - 1):
-        allBirds.append(Bird(i + 1, ts[nL[i]:nL[i+1]], coord[nL[i]:nL[i+1]],
+        allBirds.append(Bird(i, ts[nL[i]:nL[i+1]], coord[nL[i]:nL[i+1]],
                              speed[nL[i]:nL[i+1]], speedAbsolut[nL[i]:nL[i+1]],
                              speedNorm[nL[i]:nL[i+1]]))
 
@@ -90,7 +105,7 @@ def get_list(l_f_param):
     tMin = 0  # hardCoded for storch_data
     # tMax = 125  # TODO:  get from somewhere else Time in seconds
     # datafreq = 4  # TODO: maybe from extern in [Hz]
-    tauRange = l_f_param['tauRange'] + 1
+    tauRange = l_f_param['tauRange']
     maxDist = l_f_param['maxDist']
     time1 = datetime.datetime.now()
 
@@ -102,32 +117,43 @@ def get_list(l_f_param):
                               'correlation']]
     # ['time', 'iID', 'jID', 'tau', 'correlation']
     res = l_f_param['timeResolution']
-    tOffsMin = tMin + tInt + tauRange
-    tOffsMax = tMax - tInt - tauRange
-    for tOffs in range(tOffsMin * datafreq, tOffsMax * datafreq, res):
+    tOffsMin = tMin + tInt + tauRange * 2
+    tOffsMax = tMax - tInt - tauRange * 2
+    for tOffs in range(tOffsMin, tOffsMax, res):
         for birdI in allBirds:
             for birdJ in allBirds:
                 if birdI != birdJ:
                     sumTauList = []
-                    for tau in range(1, tauRange):  # instead of starting at 1
+                    for tau in range(-tauRange, tauRange + 1):  # instead of starting at 1
+                        if tau == 0:
+                            continue
                         sumB = 0
                         for t in range(tOffs - tInt, tOffs + 1 + tInt):
                             vDotProd = np.dot(birdI.speedNorm[t],
                                               birdJ.speedNorm[t + tau])
                             sumB = sumB + vDotProd
                         sumTauList.append(sumB)
-                    bestTau = (sumTauList.index(max(sumTauList)) + 1,  # DEL tauRange -
-                               max(sumTauList) / (tInt * 2. + 1.))
-                    if bestTau[1] > l_f_param['minSigni']:
+                        tauMax = sumTauList.index(max(sumTauList)) - tauRange
+                        if tauMax > -1:
+                            tauMax = tauMax + 1  # Quatsch mogren machen ;)
+                    bestTau = (tauMax, max(sumTauList) / (tInt * 2. + 1.) + 1)
+                    if bestTau[1] > l_f_param['minSigni']+1:
                         distance = npl.norm(birdI.coord[t] - birdJ.coord[t])
                         if distance < maxDist:
-                            birdParam = [tOffs, birdI.iD, birdJ.iD, bestTau[0],
-                                         bestTau[1]]
+                            if bestTau[0] > -1:
+                                birdParam = [tOffs, birdI.iD, birdJ.iD,
+                                             bestTau[0], bestTau[1]]
+                            else:
+                                birdParam = [tOffs, birdJ.iD, birdI.iD,
+                                             -bestTau[0], bestTau[1]]
                             followerListsAllTimes.append(birdParam)
                         # print(lf_Dframe)
 
     time2 = datetime.datetime.now()
     deltaTime = time2 - time1
+
+    print("Time used for Anlysis:")
+    print(deltaTime)
 
     if len(followerListsAllTimes) < 2:
         print("EMPTY!EPMTY!EMPTY!-l_f_csv.py-")
@@ -138,8 +164,7 @@ def get_list(l_f_param):
 
     return followerListsAllTimes
 # lf_Dframe.to_csv("HALLOHALLO.csv", index=False)
-# print("Time used for Anlysis:")
-# print(deltaTime)
+
 # print(followerListsAllTimes)
 
 

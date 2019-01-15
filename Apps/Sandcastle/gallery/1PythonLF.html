@@ -64,126 +64,23 @@
             --bartop: 280px;
             --timelinewidth: 700px;
         }
-        .telement{
-            --altspanheight: 180px;
-        }
 
-        .chart rect {
-            fill: steelblue;
-        }
-
-        .chart text {
-            fill: white;
-            font: 10px sans-serif;
-            text-anchor: end;
-        }
-
-
-
-        .controlPanel3 {
+        .controlPanelLeft {
+            display: block;
             position: absolute;
-            top: var(--bartop);
-            left: var(--leftmar);
-            background: rgba(42, 42, 42, 0.8);
-            color: #edffff;
-            white-space: nowrap;
-            padding: 4px 8px;
+            left: 20px;
+            top: 20px;
             border-radius: 4px;
-            min-width: 20px;
+            padding: 4px 8px;
+            background: rgba(42, 42, 42, 0.8);
             min-height: var(--boundary);
-            max-width: 30px;
-            max-height: var(--boundary);
         }
 
 
-        .controlPanel4 {
+        .timelineBottomAligned {
             display: block;
             position: absolute;
             left: 1px;
-        }
-
-        .controlPanel5 {
-            display: block;
-            position: absolute;
-        }
-
-        .d3panel {
-            position: absolute;
-            top: 500px;
-            left: var(--leftmar);
-            background: rgba(42, 42, 42, 0.8);
-            color: #edffff;
-            white-space: nowrap;
-            padding: 4px 8px;
-            border-radius: 4px;
-            min-width: 100px;
-            min-height: 10%;
-            max-width: 250px;
-            max-height: 12%;
-            opacity: 0.37;
-            filter: alpha(opacity=50);
-        }
-        .d3panel:hover {
-            opacity: 1.0;
-            filter: alpha(opacity=100); /* For IE8 and earlier */
-        }
-        .cesium-infoBox {
-            width: 25%;
-            max-width: none;
-        }
-
-        .controlPanel2 {
-            position: auto;
-            top: 50px;
-            left: 1600px;
-            background: rgba(42, 42, 42, 0.8);
-            color: #edffff;
-            white-space: nowrap;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-
-        .controlPanel2 {
-            position:auto;
-            z-index: 1;
-            height: 15%;
-            min-width: 20px;
-            min-height: 200px;
-            max-width: 500px;
-            margin: 0 auto;
-            text-align:center;
-            opacity: 0.37;
-            filter: alpha(opacity=50);
-        }
-        .controlPanel2:hover {
-            opacity: 1.0;
-            filter: alpha(opacity=100); /* For IE8 and earlier */
-        }
-
-
-        .chart div {
-            font: 10px sans-serif;
-            background-color: steelblue;
-            background: rgba(142, 142, 142, 0.8);
-            text-align: right;
-            padding: 3px;
-            margin: 1px;
-            color: white;
-        }
-        .chartline div {
-            font: 10px sans-serif;
-            background-color: orangered;
-            background: yellow;
-            text-align: right;
-            color: white;
-        }
-
-        .hidden>div {
-            visibility:hidden;
-        }
-
-        .visible>div {
-            visibility:visible;
         }
 
         .dropbtn {
@@ -222,19 +119,9 @@
             display: block;
         }
 
-        /*.dropdown-content a:hover {background-color: #ddd;}*/
-
         .dropdown:hover .dropdown-content {display: block;}
 
         .dropdown:hover .dropbtn {display: none;}
-
-
-        .altErnative {
-            width: 10px;
-            height: 2px;
-            position: absolute;
-            background: darkgrey;
-        }
 
         .lfRelation {
             height: 10px;
@@ -243,35 +130,31 @@
         }
 
         .lfMatrix {
-            height: 10px;
-            top: 2px;
             position: absolute;
         }
 
-        #altAnimation {
-            width: 20px;
-            height: 2px;
+
+        .lfRelation .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: rgba(42, 42, 42, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            bottom: 15px;
+            opacity: 0.8;
+
+            /* Position the tooltip */
             position: absolute;
-            background: red;
+            z-index: 1;
         }
 
-        #altSpan {
-            width: 5px;
-            height: var(--altspanheight);
-            position: absolute;
-            background: white;
-            top: 10px;
-            left: var(--leftmar);
+        .lfRelation:hover .tooltiptext {
+          visibility: visible;
         }
 
-        #lfSpan {
-            width: var(--altspanheight);
-            height: 5px;
-            position: absolute;
-            background: white;
-            top: 10px;
-            left: var(--leftmar);
-        }
+
 
         #toolbarPyhton {
             bottom: 30px;
@@ -292,28 +175,42 @@
 
         #matrixVis {
             bottom: 170px;
+            opacity: 0.8;
         }
-
-        #legendTimeline {
-            bottom: 170px;
-            left:90;
-        }
-
 
         </style>
 
 <div class="fullSize" id="cesiumContainer"></div>
 <div id="loadingOverlay"><h1>Loading...</h1></div>
-<div id="toolbar"></div>
 
-<div id="timelineUpper" class="controlPanel4" ></div>
+<div id="timelineUpper" class="timelineBottomAligned" ></div>
 
-<div id="timelineLower" class="controlPanel4" ></div>
+<div id="timelineLower" class="timelineBottomAligned" ></div>
 
-<div id="matrixVis" class="controlPanel4" ></div>
+<div id="matrixVis" class="timelineBottomAligned" ></div>
 
-<div id="legendTimeline" class="controlPanel3" >
-    _
+<div id="lfLegend" class="controlPanelLeft" >
+    <h3> Legend: </h3>
+    <div>
+        Timelinebar:
+        <ul>
+            <li id="legendTimeline0" type="disc" style="background: #888888">Loading...</li>
+
+            <li id="legendTimelineH" type="disc" style="background: #888888">Loading...</li>
+
+            <li id="legendTimelineL" type="disc" style="background: #888888">Loading...</li>
+        </ul>
+    </div>
+    <div>
+        Matrix:
+        <ul >
+            <li id="legendMatrix1" type="square" style="background:#888888">Loading...</li>
+
+            <li id="legendMatrix2" type="square" style="background:#888888">Loading...</li>
+
+            <li id="legendMatrix3" type="square" style="background:#888888">Loading...</li>
+        </ul>
+    </div>
 </div>
 
 
@@ -323,20 +220,14 @@
         <div class="dropdown-content">
             <table>
                 <tbody><tr>
-                    <td><input type="checkbox" id="lfAktiv" > Show</td>
+                    <td><input type="checkbox" checked="checked" id="lfLegendActiv" > Legend</td>
+                    <td><input type="checkbox" checked="checked" id="lfMatrixActiv" > Matrix</td>
                 </tr>
                 <tr>
-                    <td>tau-range [s]</td>
+                    <td>tau-range [steps]</td>
                     <td>
-                        <input type="text" id="tauRange" value="2" size="5" >
+                        <input type="text" id="tauRange" value="4" size="5" >
                         <div id="tauRangeE"></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>step [s]</td>
-                    <td>
-                        <input type="text" value="1" id="step" size="5" >
-                        <div id="stepE"></div>
                     </td>
                 </tr>
                 <tr>
@@ -354,7 +245,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>intervall length [s]</td>
+                    <td>intervall length [steps]</td>
                     <td>
                         <input type="text" id="interLength" value="6" size="5" >
                         <div id="interLengthE"></div>
@@ -365,6 +256,13 @@
                     <td>
                         <input type="text" id="maxDist" value="80" size="5" >
                         <div id="MaxDistE"></div>
+                    </td>
+                </tr>
+                <tr style="visibility: hidden;">
+                    <td>step [steps]</td>
+                    <td>
+                        <input type="text" value="1" id="step" size="5" >
+                        <div id="stepE"></div>
                     </td>
                 </tr>
                 </tbody>
@@ -388,9 +286,10 @@ function startup(Cesium) {
 
     var url_string = window.location.href;
     var url = new URL(url_string);
-    console.log(url);
     modus = url.searchParams.get("mode");
-    console.log(modus);
+    if(modus === null)
+        modus = "No Syncronization"
+    console.log("Sync modus:" + modus);
 
 
     if (modus == 'master' || modus == 'm') {
@@ -405,51 +304,87 @@ function startup(Cesium) {
 
 //>SSS
 
-
+//array columbs: pythonLFdata pythonLFdataHighSigni pythonLFlookup
 const TIME = 0;
 const IID = 1;
 const JID = 2;
 const TAU = 3;
 const CORRELATION = 4;
+//array columbs: avgLookup
+const COUNT = 0;
+const SUM = 1;
+//datasets
 const STORCH = 0;
 const PIGEON = 1;
-//var rangeLF = 1; //Achtung nur vorrübergehend
-var datalength; // time[s] * datafreq TODO: get datalength from somewhere else
+const CUSTOM = 2;
+const PIGEONGB = 3;
+
+
+
+var datalength; // time(in seconds) * datafreq TODO: get datalength from somewhere else
 var datafreq; // in seconds
 var birdCount;
 // TODO: get birdCount from somewhere else
-var dataset = PIGEON;
-setInputdata(dataset);
+var alphaArcActive = true; // should arcs encode tau values by color
+var dataset = PIGEON; // The dataset that will be loaded
 var kmlSource = "";
-
-//var property; //positions
 var birds = [];
 var idToIndex = [];
 var pythonLFdata = [];
 var pythonLFdataHighSigni = [];
-
 var pythonLFlookup = [];
-for ( var t = 0; t < datalength; t++) {  //t = t + step
+var avgLookup = [];
+
+//var birdColors = ['#762a83','#9970ab','#c2a5cf','#e7d4e8','#d9f0d3','#a6dba0','#5aae61','#1b7837','#00441b'];
+var birdColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695']; //10 red -> blue
+setInputdata(dataset); // sets dataset and datalength
+
+
+
+for ( var t = 0; t < datalength; t++) {  //t is one step in time e.g. 4Hz t = 0.25sec
+    avgLookup[t] = [];
+    for (var i = 0; i < birdCount; i++) {
+        avgLookup[t][i] = [];
+        for (var c = 0; c < 2; c++) {
+            avgLookup[t][i][c] = 0;
+        }
+    }
+}
+
+for ( var t = 0; t < datalength; t++) {  //t is one step in time e.g. 4Hz t = 0.25sec
     pythonLFlookup[t] = [];
     for (var i = 0; i < birdCount; i++) {
         pythonLFlookup[t][i] = [];
         for (var j = 0; j < birdCount; j++) {
-            pythonLFlookup[t][i][j] = false;
+            pythonLFlookup[t][i][j] = [];
+            for (var tauInd = 0; tauInd < 2; tauInd++) {
+                pythonLFlookup[t][i][j][tauInd] = undefined;
+            }
         }
     }
 }
 
 function setInputdata(type){
     if(type == STORCH){
-        datalength = 300
+        datalength = 300 //time in seconds * datafreq
         datafreq = 1
         dataset = STORCH
         birdCount = 12
-    }else if(type == PIGEON){
-        datalength = 500 // oder 125?
+    } else if(type == PIGEON){
+        datalength = 500
         datafreq = 4
         dataset = PIGEON
         birdCount = 8
+    } else if(type == CUSTOM){
+        datalength = 300
+        datafreq = 1
+        dataset = CUSTOM
+        birdCount = 30
+    } else if(type == PIGEONGB) {
+        datalength = 1000
+        datafreq = 10
+        dataset = PIGEONGB
+        birdCount = 30
     } else {
         console.log("UNDEFINDED DATATYPE")
     }
@@ -458,38 +393,34 @@ function setInputdata(type){
 
 var options = {
     camera : viewer.scene.camera,
-    canvas : viewer.scene.canvas
+    canvas : viewer.scene.canvas,
+    ellipsoid : Cesium.Ellipsoid.WGS84 //default= Cesium.Ellipsoid.WGS84
 };
 
 //'../../SampleData/kml/2014-08-07-70.kml'
 
 if (dataset == STORCH){
     kmlSource =  '../../SampleData/kml/2014-08-07-70.kml'
-} else {
-    kmlSource =  '../../SampleData/kml/pigeon/pigeonHQ.kml'
+} else if (dataset == PIGEON){
+    kmlSource =  '../../SampleData/kml/pigeon/pigeonHQ.kml' //pigeonHQ.kml coordMod.kml
+} else if (dataset == CUSTOM){
+    kmlSource = '../../SampleData/kml/random30.kml'
+} else if (dataset == PIGEONGB){
+    kmlSource = '../../SampleData/kml/pigeon/n30Data.kml'
 }
 
-viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
-    //property = new Cesium.SampledPositionProperty();
 
+viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
     viewer.clock.multiplier = 1;
     viewer.camera.flyHome(0);
 
-
-
-
     var mydata = dataSource.entities.values;
     var loopSize = mydata.length;
-    console.log(loopSize);
-
-
-
-
+    console.log("TotalBirdCount:" + loopSize);
 
     for (let i = 0; i < loopSize; i++) {
         let mymodel = mydata[i];
 
-        if (true) {
         for (let j = 0; j < loopSize; j++) {
             let mymodelJ = mydata[j];
             idToIndex[j] = mymodelJ.name;
@@ -500,16 +431,92 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
                     return [mymodelJ.position.getValue(time), mymodel.position.getValue(time)];
                 }, false);//false meaning is not constant
 
+                var arcColorCallback = new Cesium.CallbackProperty(function(time){
+                    let color;
+                    let alpha = 0.5;
+                    if(alphaArcActive){
+                        let deltaTime = Cesium.JulianDate.secondsDifference(time, viewer.clock.startTime);
+                        let timeIndex = Math.round(deltaTime*datafreq);
+                        let tau = pythonLFlookup[timeIndex][i][j][0] //// TODO: 0 steht für tau 1 für CORRELATION
+                        alpha = tau / lfTauRange;
+                    }
+                    if (myAnimalIndexSelected === undefined){
+                        color = Cesium.Color.fromAlpha(Cesium.Color.fromCssColorString("#d95f0e"),alpha);  //Cesium.Color.YELLOW.withAlpha(alpha);
+                    } else {
+                        if (alpha< 0 || alpha >1 || alpha === undefined)
+                            throw(new Error("Color index out of range!"));
+                        let c = colorFromZO(i,alpha);
+
+
+                        let co = Cesium.Color.BLACK ;
+                        if (c !== undefined)
+                            co = Cesium.Color.fromCssColorString(c);
+                        else
+                            co = Cesium.Color.BLACK;
+
+                        color = co;
+                    }
+                    return color;
+                }, false);
+
+                function colorFromZO(i,alpha){
+                    let c;
+                    if (myAnimalIndexSelected == i){
+                        c = birdColors[Math.round(4 - alpha * (birdColors.length / 2 - 1 ))];
+                    } else {
+                        c = birdColors[Math.round(birdColors.length / 2 + alpha* (birdColors.length / 2 - 1))];
+
+                    }
+                    return c;
+                }
+
+                var arcDescriptionCallback = new Cesium.CallbackProperty(function(time){
+                    let deltaTime = Cesium.JulianDate.secondsDifference(time, viewer.clock.startTime);
+                    let timeIndex = Math.round(deltaTime*datafreq);
+                    let tau = pythonLFlookup[timeIndex][i][j][0];
+                    let sig = pythonLFlookup[timeIndex][i][j][1];
+                    let string = ""
+                    if(isNaN(tau) || isNaN(sig)){
+                        string = "No interaction with correlatoin > " + lfMinSigniH;
+                    } else {
+                        string = "Tau: " + tau + " Correlation: " + sig.toFixed(4);
+                    }
+                    return string;
+                }, false);
+
+
+                var birdColorCallback = new Cesium.CallbackProperty(function(time){
+                    let deltaTime = Cesium.JulianDate.secondsDifference(time, viewer.clock.startTime);
+                    let timeIndex = Math.round(deltaTime*datafreq);
+                    let count = avgLookup[timeIndex][i][COUNT];
+                    let sum = avgLookup[timeIndex][i][SUM];
+                    let avgTi = sum / count;
+                    let alpha = 1;
+                    let color;
+                    if (count > 0){
+                        alpha = avgTi/(lfTauRange *2) + 0.5;
+                        //color = Cesium.Color.fromCssColorString(birdColors[Math.round(alpha * birdColors.length)]);
+                    } else {
+                        alpha = 0.5;
+                        //color = Cesium.Color.fromCssColorString(birdColors[Math.round(0.5 * birdColors.length)]);
+                    }
+                    //console.log(color);
+                    color = Cesium.Color.WHITE; //TODO no Effect..
+                    let birdcolor = Cesium.Color.fromAlpha(color, alpha);
+                    return birdcolor;
+                }, false);
+
 
                 let theLfArc = viewer.entities.add({
                     name : '#' + j + ' follows #' + i,
                     id : 'arc' + i + 'to' + j,
+                    description : arcDescriptionCallback,
                     polyline : {
                         positions : birdPosCallback,
                         width : 20,
                         //scale: 0.001, no effect
                         followSurface : false,
-                        material : new Cesium.PolylineArrowMaterialProperty(Cesium.Color.RED.withAlpha(0.5)),
+                        material : new Cesium.PolylineArrowMaterialProperty(arcColorCallback),
                         show: new Cesium.CallbackProperty(function(time) {
                             //console.log(mymodel.position.getValue(time).x);
                             let dTime = Cesium.JulianDate.secondsDifference(time, viewer.clock.startTime);
@@ -520,7 +527,18 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
 
             }
         } // End of for Loop over j
-        }
+
+        var birdDescriptionCallback = new Cesium.CallbackProperty(function(time){
+            let deltaTime = Cesium.JulianDate.secondsDifference(time, viewer.clock.startTime);
+            let timeIndex = Math.round(deltaTime*datafreq);
+            let count = avgLookup[timeIndex][i][COUNT];
+            let avgTi = avgLookup[timeIndex][i][SUM] / count;
+            if(isNaN(avgTi)){
+                return "Ti*: ";
+            }
+            let string = "Ti*: " + avgTi.toFixed(2);
+            return string;
+        }, false);
 
 
         var theBird = birds.push(
@@ -530,10 +548,11 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
                 model: {
                     uri: '../../SampleData/models/FlyingBird/storch_model_2017__1_7lq90.glb',//FalconRotate.gltf', //FalconColor.glb', //Duck.gltf',//bird.gltf /b789.glb
                     minimumPixelSize: 32,
-                    color: Cesium.Color.LIGHTGREY,//YELLOW
-                    scale: 0.05 //0.3 for pigeon
+                    color: birdColorCallback,
+                    //color: Cesium.Color.LIGHTGREY,//YELLOW
+                    scale: 0.15//0.3 for pigeon
                 },
-                name: i,  //.id
+                name: "Bird #" + i, //used as id  for select synchronization
                 path: {
                     resolution: 1,
                     leadTime: 0,
@@ -541,7 +560,8 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
                     material: Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0.5),
                     width: 2
                 },
-                myIndex : i,
+                description : birdDescriptionCallback,
+                myAnimalIndex : i,
             }));
 
         if (i >= 0) {
@@ -557,64 +577,86 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
     viewer.clock.shouldAnimate = true;
 });
 
-parseData(createVis);
-
 
 //timed Update of MatrixVis
 window.setInterval(function() {
         drawMatrix();
 }, 200)
 
+//maxVal is the highest interaction count over all timeintervalls
+function drawTimelineLegend(maxVal, myColors){
+    let totalnum = myColors.length;
+    let val1 = Math.round(maxVal / totalnum) - 1;
+    let valVL = Math.round(maxVal * (totalnum-1) / totalnum);
+    let valL = Math.round(maxVal * totalnum / totalnum)-1;
+    let firstrow = document.getElementById('legendTimeline0');
+    let secondrow = document.getElementById('legendTimelineH');
+    let thirdrow = document.getElementById('legendTimelineL');
+    firstrow.style.color = myColors[0];
+    firstrow.innerHTML = '0-' + val1;
+    secondrow.style.color = myColors[Math.round(totalnum/2)];
+    secondrow.innerHTML = '...';
+    thirdrow.style.color = myColors[totalnum-1];
+    thirdrow.innerHTML = valVL + '-' + valL
+}
 
+
+function drawMatrixLegend(){
+    let totalnum = birdColors.length;
+    let firstrow = document.getElementById('legendMatrix1');
+    let secondrow = document.getElementById('legendMatrix2');
+    let thirdrow = document.getElementById('legendMatrix3');
+    firstrow.style.color = birdColors[0]
+    firstrow.innerHTML = 'tau = -' + lfTauRange;
+    secondrow.style.color = birdColors[Math.round(totalnum/2)]; // the color in the middle of the array is neutral
+    secondrow.innerHTML = 'no interaction';
+    thirdrow.style.color = birdColors[totalnum-1];
+    thirdrow.innerHTML = 'tau = ' + lfTauRange;
+}
 
 function drawTimelineBar(id) {
     console.log("Start to draw Timeline");
-
-    timelineCountArray[id] = getTimelineCountArray(id);
-
+    updateTimelineCountArray(id);
     var pos = 0;
     var width = 1;
     //var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'].reverse();
     var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
     var color = myColors[0];
     var htmlString = '';
-    var maxVal = 1;
+    let maxVal = 1;
+    updateTimelineCountArray(LOWERBAR);
 
-
-
-    // TODO: maxVal für Legende verwenden
-    for (var index = 0; index < timelineCountArray[id].length; index++){
-        var val = timelineCountArray[id][index];
+    for (var index = 0; index < timelineCountArray[LOWERBAR].length; index++){
+        let val = timelineCountArray[LOWERBAR][index];
         if( val > maxVal){
             maxVal = val
         }
     }
 
+    drawTimelineLegend(maxVal, myColors);
 
-    var sLFbar = function (value) {
-        //return value
-        return Math.log(value + 1); //log(0) = infinity
+    var sLFbar = function (value) { // Could be used for log scale(take care of Legend)
+        return value
+        //return Math.log(value + 1); //log(0) = infinity
     };
     var lfBarWidth = getLFbarWidth();
     var bucketWidth = 1;
-    console.log(lfBarWidth)
-    for (var pixel = 0; pixel < lfBarWidth; pixel++){
+    console.log("The width of the Timeline was set to:" + lfBarWidth)
+    for (let pixel = 0; pixel < lfBarWidth; pixel++){
 
-        var index = Math.round( datalength * (pixel / lfBarWidth));//pixel = bucketCount
-
-
+        let index = Math.round( datalength * (pixel / lfBarWidth));//pixel = bucketCount
         let normVal = sLFbar(timelineCountArray[id][index]) / sLFbar(maxVal);
         let colorID = Math.round(normVal * (myColors.length - 1));
 
         color = myColors[colorID];
         pos = pos + width;
 
-
+        let lowerBound = Math.round((colorID * maxVal) / (myColors.length));
+        let higherBound = Math.round(((colorID + 1) * maxVal) / (myColors.length))-1;
         //htmlStringID += ids
         htmlString += '<div id=lfdiv' + index
         + ' class="lfRelation" style="background: '+ color
-        + '; left: '+ pos +'px' + '; width: '+ width +'px"></div>';
-
+        + '; left: '+ pos +'px' + '; width: '+ width +'px"> <span class="tooltiptext">'+ lowerBound +' - '+ higherBound+'</span> </div>';
     }
 
     if (id === UPPERBAR){
@@ -628,24 +670,23 @@ function drawTimelineBar(id) {
     $( ".dropbtn" ).css('background-color', '#4CAF50');
 }
 
-function getTimelineCountArray(id) {
+function updateTimelineCountArray(id) {
     timelineCountArray[id].fill(0);
-    console.log("Drawing TimelineBar")
-    var time;
-    var dataArray;
+    let time;
+    let dataArray;
     if (id === UPPERBAR){
         dataArray = pythonLFdataHighSigni;
     } else {
         dataArray = pythonLFdata;
     }
-    var plfLength = dataArray.length; //could be more general
+    let plfLength = dataArray.length; //could be more general
     if (plfLength > 1){
 
     } else {
         throw (new Error("The Array pythonLFdata is empty in drawTimelineBar"));
     }
 
-    var plfIndex = 1; //needs to start with 1
+    let plfIndex = 1; //needs to start with 1 ROW in csvFile
     for (var timeInSec = 0; timeInSec < datalength - 1; timeInSec++){
         time = dataArray[plfIndex][TIME];
 
@@ -657,15 +698,15 @@ function getTimelineCountArray(id) {
         //console.log("timelineCountArray:" + timelineCountArray[timeInSec]);
     }
 
-    //Testing
-    console.log("first time and count: " + timelineCountArray[id][0] + ", " + timelineCountArray[id][299]);
-
-    return timelineCountArray[id];
+    //Test
+    //console.log("Count at first time:" + timelineCountArray[id][0] + "Upper OR Lower Bar= " + id);
+    //console.log("Count at time=300:  " + timelineCountArray[id][299]);
+    return;
 }
 
 
 function parseData(createVis) {
-    Papa.parse("/../../../Python/Data/LFdata.csv", {
+    Papa.parse(getCSVPath(), {
         download: true,
         complete: function(result) {
             console.log("Data read from CSV");
@@ -682,35 +723,80 @@ function createVis(lfData) {
     console.log("Start to draw the Arcs");
     pythonLFdata = lfData;
     pythonLFdataHighSigni = [];
-    for (var indexLF = 1 ; indexLF < pythonLFdata.length; indexLF++) {
 
+    for (var indexLF = 1 ; indexLF < pythonLFdata.length; indexLF++) {
+        pythonLFdata[indexLF][CORRELATION] = pythonLFdata[indexLF][CORRELATION]-1
         if (pythonLFdata[indexLF][CORRELATION] > lfMinSigniH){
             pythonLFdataHighSigni.push(pythonLFdata[indexLF]);
         }
     }
 
 
-    for ( var t = 0; t < datalength; t++) {  //t = t + step
+    for ( var t = 0; t < datalength; t++) {  //t is one step in time e.g. 4Hz t = 0.25sec
         pythonLFlookup[t] = [];
         for (var i = 0; i < birdCount; i++) {
             pythonLFlookup[t][i] = [];
             for (var j = 0; j < birdCount; j++) {
-                pythonLFlookup[t][i][j] = false;
+                pythonLFlookup[t][i][j] = [];
+                for (var tauInd = 0; tauInd < 2; tauInd++) {
+                    pythonLFlookup[t][i][j][tauInd] = undefined;
+                }
             }
         }
     }
 
     for (indexLF = 1; indexLF < pythonLFdataHighSigni.length; indexLF++ ){
         let t = pythonLFdataHighSigni[indexLF][TIME];
-        let i = pythonLFdataHighSigni[indexLF][IID] - 1;
-        let j = pythonLFdataHighSigni[indexLF][JID] - 1;
-        pythonLFlookup[t][i][j] = true;
+        let i = pythonLFdataHighSigni[indexLF][IID];
+        let j = pythonLFdataHighSigni[indexLF][JID];
+        let tau = pythonLFdataHighSigni[indexLF][TAU];
+        let corr = pythonLFdataHighSigni[indexLF][CORRELATION];
+        pythonLFlookup[t][i][j][0] = tau;
+        pythonLFlookup[t][i][j][1] = corr;
     }
 
     //console.log(pythonLFlookup);
-    console.log("00 = " + pythonLFdata[0][TIME]);
-    console.log("01 = " + pythonLFdata[0][IID]);
-    console.log("10 = " + pythonLFdata[1][TIME]);
+    console.log(pythonLFdata[0][TIME]);
+    //console.log("01 = " + pythonLFdata[0][IID]);
+    //console.log("10 = " + pythonLFdata[1][TIME]);
+
+    createAvgTable(pythonLFdataHighSigni)
+}
+
+function createAvgTable(pythonLFdataHighSigni){
+
+    for ( let t = 0; t < datalength; t++) {  //t is one step in time e.g. 4Hz t = 0.25sec
+        avgLookup[t] = [];
+        for (let i = 0; i < birdCount; i++) {
+            avgLookup[t][i] = [];
+            for (let c = 0; c < 2; c++) {
+                avgLookup[t][i][c] = 0;
+            }
+        }
+    }
+
+    let input =  pythonLFdataHighSigni;
+    let t = 0;
+    let i = 0;
+
+    for (var indexLF = 1; indexLF < input.length; indexLF++){
+        let t = input[indexLF][TIME];
+        let i = input[indexLF][IID];
+        let j = input[indexLF][JID];
+        let tau = input[indexLF][TAU];
+
+        avgLookup[t][i][SUM] += Number(tau);
+        avgLookup[t][j][SUM] -= Number(tau);
+        avgLookup[t][i][COUNT]++;
+        avgLookup[t][j][COUNT]++;
+    }
+
+    var testT = 130;
+    var testB  = 0;
+    var test = avgLookup[testT][testB][SUM] / avgLookup[testT][testB][COUNT];
+    //console.log("Summe" + avgLookup[testT][testB][SUM]);
+    //console.log("count" + avgLookup[testT][testB][COUNT]);
+    //console.log("EXAMPLE: " +  test);
 }
 
 
@@ -724,30 +810,97 @@ function startPythonAna(){
         'dataset': Number(dataset)
     };
 
-    $.ajax({
-        url: '/lfOutput', //versuch products
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(l_f_param),
-        success: function(response) {
-            console.log(response);
-            parseData(createVis);
-        }
-    });
+    //frag ob die datei existiert
+    //Wenn ja => papaseData
+    //sonst AJAX
+
+    //"/../../../Python/Data/LFdata.csv"
+    //
+
+    $.get(getCSVPath())
+    .done(function() {
+        console.log("File Exists");
+        parseData(createVis);
+    }).fail(function() {
+        console.log("File did not Exist - task was sent to the server");
+        $.ajax({
+            url: '/lfOutput',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(l_f_param),
+            success: function(response) {
+                console.log(response);
+                parseData(createVis);
+            }
+        });
+    })
 }
+
+function getCSVPath(){
+    let d   = dataset;
+    let r   = lfTauRange;
+    let st  = lfTimeResolution;
+    let sig = lfMinSigniL;
+    let i   = lfTstepIntervall;
+    let di  = maxDist;
+
+    let list = [d,r,st,sig,i,di];
+
+    for (var val in list){
+        if (typeof val === 'undefined'){
+            return undefined;
+        }
+    }
+    drawMatrixLegend();
+    let url = "/../../../Python/Data/d"+d+"r"+r+"st"+st+"sig"+sig+"i"+i+"di"+di+".csv";
+    return url;
+}
+
+var myAnimalIndexSelected = null;
+
+Cesium.knockout.getObservable(viewer, '_selectedEntity').subscribe(function(entity) {
+       if (entity !== undefined) {
+           //console.log("Entity ID = " + entity.id)
+           //console.log("Entity.name = " + entity.name)
+           let index = entity.myAnimalIndex;  //same idetifier should be choosen in slave.js
+           if (index !== undefined) {
+               myAnimalIndexSelected = index
+               console.log("myAnimalIndex was set to: " + index)
+           } else {
+               myAnimalIndexSelected = undefined
+           }
+       }
+});
 
 
 function getShowStatus(iName ,jName ,deltaTime) {
-
-    var i = idToIndexFunc(iName); // as bird Index starts witch 1
+    var i = idToIndexFunc(iName); // as bird Index starts with 1
     var j = idToIndexFunc(jName);
     let tLF = Math.round(deltaTime*datafreq);
-    //console.log(tLF + " " + i + " " + j);
-    var bool = pythonLFlookup[tLF][i][j];
+    let id = myAnimalIndexSelected;
+    var bool;
+
+    if (pythonLFlookup[tLF][i][j][0] === undefined){
+        bool = false;
+    } else {
+        bool = true;
+    }
+
+    if (myAnimalIndexSelected === undefined){
+        //bool = pythonLFlookup[tLF][i][j];
+    } else {
+        if(i == id || j == id){
+            //bool = pythonLFlookup[tLF][i][j];
+        } else {
+            bool = false;
+        }
+    }
+
     if (bool == undefined){
         bool = false;
         console.log("VALUE undefinded in getShowStatus")
     }
+
     return bool;
 }
 
@@ -762,30 +915,73 @@ function idToIndexFunc (birdNameNumber){
     return index
 }
 
-function drawMatrix() {
+function initMatrix() {
     console.log("Start to draw Matrix");
     //var myColors = ['#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695'].reverse();
     var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
     var color = myColors[0];
     var htmlString = '';
+    var blockSize = Math.round(120/birdCount);
 
-    for (var i = 0; i < birdCount; i++) {
-        let top = i * 10; // +2 ?
+    for (let i = 0; i < birdCount; i++) {
+        let top = i * blockSize; // +2 ?
         let pos = 0;
 
-        for (var j = 0; j < birdCount; j++) {
-            let id = (i + j) % myColors.length;
+        for (let j = 0; j < birdCount; j++) {
+            //let id = (i + j) % myColors.length;
             let color = getMatrixColor(i,j);
-            let width = 10;
-            htmlString += '<div id=lfdiv' + i
+            let width = blockSize;
+            htmlString += '<div id=lfdivMat' + i + '-' + j
             + ' class="lfMatrix" style="background: '+ color
-            + '; left: '+ pos +'px' + '; width: '+ width +'px ; top: '+ top +'px"></div>';
+            + '; left: '+ pos +'px' + '; width: '+ width +'px ; top: '+ top +'px; height: '+width+'px"></div>';
             pos += width;
+
+
         }
     }
 
     document.getElementById('matrixVis').innerHTML = htmlString;
 
+    for (let i = 0; i < birdCount; i++) {
+        for (let j = 0; j < birdCount; j++) {
+
+            let square2 = document.getElementById('lfdivMat' + i + '-' + j)
+            square2.onclick = function(){
+                console.log(i + '-' +  j +'was clicked' )
+                viewer.selectedEntity = birds[i];
+            }
+
+        }
+    }
+    drawMatrixLegend();
+}
+
+//myAnimalIndexSelected
+function drawMatrix(){
+    for (var i = 0; i < birdCount; i++) {
+        for (var j = 0; j < birdCount; j++) {
+            let color = getMatrixColor(i,j);
+            let square = document.getElementById('lfdivMat' + i + '-' + j)
+            square.style.background = color;
+            if(j == myAnimalIndexSelected || i == myAnimalIndexSelected) {
+                square.style.border = 'solid thin black';
+            } else {
+                square.style.border = 'none';
+            }
+
+        }
+    }
+}
+
+function colorFromZO(i,alpha){
+    let c;
+    if (myAnimalIndexSelected == i){
+        c = birdColors[Math.round(4 - alpha * (birdColors.length / 2 - 1 ))];
+    } else {
+        c = birdColors[Math.round(birdColors.length / 2 + alpha* (birdColors.length / 2 - 1))];
+
+    }
+    return c;
 }
 
 
@@ -793,14 +989,26 @@ function getMatrixColor(i,j) {
     var myColors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026'];
     let time = Cesium.JulianDate.secondsDifference(viewer.clock.currentTime, viewer.clock.startTime);
     let dTime = Math.round(time * datafreq);
+    let tau = pythonLFlookup[dTime][i][j][0];
 
-    if (pythonLFlookup[dTime][i][j]){
-        return myColors[7];
-    } else {
+    let alpha = tau / lfTauRange;
+    colorFromZO(i, alpha)
+
+    if (pythonLFlookup[dTime][i][j][0] === undefined){
         return myColors[0];
+    } else {
+        return colorFromZO(i, alpha);
     }
 }
 
+
+$('#lfLegendActiv').click(function() {
+    $("#lfLegend").toggle(this.checked);
+});
+
+$('#lfMatrixActiv').click(function() {
+    $("#matrixVis").toggle(this.checked);
+});
 
 
 
@@ -891,12 +1099,19 @@ timelineCountArray[LOWERBAR] = arrLower;
 timelineCountArray[UPPERBAR].fill(0);
 timelineCountArray[LOWERBAR].fill(0);
 
+
+
+
+initMatrix();
+startPythonAna();
+
+
 //window.onresize = function(){drawTimelineBar()} //if it should be resizid as fast as possible
 $(window).resize(function () {
     waitForFinalEvent(function(){
         drawTimelineBar(UPPERBAR);
         drawTimelineBar(LOWERBAR);
-  }, 500, "rezise timline Bar!");
+  }, 500, "rezise timeline Bar!");
 });
 
 var waitForFinalEvent = (function () {
@@ -927,7 +1142,7 @@ function getLFbarWidth(){
             minusWidth -= 32;
             left -= 32;
         }
-        $(".controlPanel4").css('left', left);
+        $(".timelineBottomAligned").css('left', left);
     } else {
         console.log("animation is OFF")
     }
@@ -939,8 +1154,6 @@ function getLFbarWidth(){
         console.log("vrButton is OFF");
     }
 
-
-    console.log("minusWidth = " + minusWidth);
     var result = totalWidth - minusWidth;
     return result;
 }

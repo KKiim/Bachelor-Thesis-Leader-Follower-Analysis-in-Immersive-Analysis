@@ -56,56 +56,6 @@
     var app = express();
 
 
-    /*
-    // Create some Test data
-    var products = [
-    {
-        id: 1,
-        timestamp: 0,
-        leader: 1,
-        follower: 2,
-        tau: 3
-    },
-    {
-        id: 2,
-        timestamp: 0,
-        leader: 2,
-        follower: 4,
-        tau: 3
-    },
-    {
-        id: 3,
-        timestamp: 1,
-        leader: 2,
-        follower: 4,
-        tau: 3
-    }
-    ]
-
-    var lfOutput = [
-    {
-        id: 1,
-        timestamp: 0,
-        leader: 1,
-        follower: 2,
-        tau: 3
-    },
-    {
-        id: 2,
-        timestamp: 0,
-        leader: 2,
-        follower: 4,
-        tau: 3
-    }
-    ]
-
-    var currentId = 3;
-    */
-
-
-
-
-
     //ADDED for python_l_f
     app.use(bodyParser.json());
 
@@ -139,18 +89,10 @@
     app.use(express.static(__dirname));
 
 
-    //test for testdata
-    app.get('/products', function(req,res){
-        console.log("Got Product Server line 100")
-        //console.log(req)
-        res.send({products: products});
-    })
-
     // ACHTUNG wird genutzt
     app.post('/lfOutput', function(req, res) {
         //console.log(req.body);
-        //var tauRange = req.body.tauRange;
-        //var timeResolution = req.body.timeResolution;
+
 
         var l_f_param = req.body;
 
@@ -173,30 +115,18 @@
             str = str.replace(/\],\[/g, '\n');
             str = str.replace(/\]/g, '');
             str = str.replace(/\[/g, '');
-            //var arrOut = str.split(',')
-
-            /*
-            /// write to file
-            var csvFile = "HALLOHALLO.csv";
-            var file = new File(csvFile);
-            var header = "time,iID,jID,tau,correlation";
-
-            file.open("w"); // open file with write access
-            file.writeln(header);
-            for (var count = 0; count < arrOut.length; count += 5 ) {
-                    file.writeln(arrOut[count] +','+ arrOut[count] +','+arrOut[count] +','+arrOut[count] +','+arrOut[count]);
-            }
-            file.close();
 
 
-            arrOut.forEach(function(string) {
-                Number(string)
-                if (string == NaN)
-                    console.log("Erorr in reading Python input (NaN Value)")
-            });
-            */
 
-            fs.writeFile("Python/Data/LFdata.csv", str, function(err) {
+            let d   = l_f_param.dataset;
+            let r   = l_f_param.tauRange;
+            let st  = l_f_param.timeResolution;
+            let sig = l_f_param.minSigni;
+            let i   = l_f_param.tStepIntervall;
+            let di   = l_f_param.maxDist;
+
+            //fs.writeFile("Python/Data/LFdata.csv", str, function(err) {
+            fs.writeFile("Python/Data/d"+d+"r"+r+"st"+st+"sig"+sig+"i"+i+"di"+di+".csv", str, function(err) {
                 if(err) {
                     return console.log(err);
                 }
