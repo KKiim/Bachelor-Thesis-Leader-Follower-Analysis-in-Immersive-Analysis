@@ -6,10 +6,7 @@
     var fs = require('fs');
     var url = require('url');
     var request = require('request');
-    //added
-    var bodyParser = require('body-parser');
     var fs = require('fs');
-
     var gzipHeader = Buffer.from('1F8B08', 'hex');
 
     var yargs = require('yargs').options({
@@ -45,6 +42,7 @@
     var mime = express.static.mime;
     mime.define({
         'application/json' : ['czml', 'json', 'geojson', 'topojson'],
+        'application/wasm' : ['wasm'],
         'image/crn' : ['crn'],
         'image/ktx' : ['ktx'],
         'model/gltf+json' : ['gltf'],
@@ -53,11 +51,20 @@
         'text/plain' : ['glsl']
     }, true);
 
+    //Python addition
+    //<PS
+    var pythonserver = require('./Python/pythonserver');
+    //PS>
+
+
     var app = express();
 
 
-    //ADDED for python_l_f
-    app.use(bodyParser.json());
+    // Added for Python integration
+    //<PS
+    pythonserver.myFunc(app,fs);
+    //PS>
+
 
     app.use(compression());
     app.use(function(req, res, next) {
@@ -87,86 +94,6 @@
     app.get(knownTilesetFormats, checkGzipAndNext);
 
     app.use(express.static(__dirname));
-
-
-    // ACHTUNG wird genutzt
-    app.post('/lfOutput', function(req, res) {
-        //console.log(req.body);
-
-
-        var l_f_param = req.body;
-
-
-        //start.js
-        var spawn = require('child_process').spawn,
-            py    = spawn('python', ['Python/Ana/compute_input.py']),
-            dataString = '';
-
-        console.log(l_f_param);
-
-        py.stdout.on('data', function(data){
-          dataString += data.toString(); //data.toString
-        });
-
-        py.stdout.on('end', function(){
-            var str = dataString;
-            str = str.replace(/\s/g, '');
-            str = str.replace(/\'/g, '');
-            str = str.replace(/\],\[/g, '\n');
-            str = str.replace(/\]/g, '');
-            str = str.replace(/\[/g, '');
-
-
-
-            let d   = l_f_param.dataset;
-            let r   = l_f_param.tauRange;
-            let st  = l_f_param.timeResolution;
-            let sig = l_f_param.minSigni;
-            let i   = l_f_param.tStepIntervall;
-            let di   = l_f_param.maxDist;
-
-            //fs.writeFile("Python/Data/LFdata.csv", str, function(err) {
-            fs.writeFile("Python/Data/d"+d+"r"+r+"st"+st+"sig"+sig+"i"+i+"di"+di+".csv", str, function(err) {
-                if(err) {
-                    return console.log(err);
-                }
-
-                console.log("The file was saved!");
-            });
-
-            console.log(str)
-            console.log("send Response to Python l_f_request");
-            res.send("SUCCESS");
-        });
-        py.stdin.write(JSON.stringify(l_f_param));
-        py.stdin.end();
-        console.log("l_f_request send from python module")
-
-
-
-
-        //setTimeout(function() {
-        //    res.send(lfOutput);
-        //}, 2000);
-
-    });
-
-    app.put('/products/:id', function(req, res) {
-        var id = req.params.id;
-        var newName = req.body.newName;
-
-        var found = false;
-
-        products.forEach(function(product, index) {
-            if (!found && product.id === Number(id)) {
-                product.name = newName;
-            }
-        });
-
-        res.send('Succesfully updated product!');
-    });
-
-
 
 
 

@@ -1,6 +1,6 @@
 
 var playMaster = true; //keeps track if the play is active
-var multMaster = 0; //the multiplier must not be undefined
+var multMaster = 1; //the multiplier must not be undefined
 var toggleTimedSync = true;
 
 const SYNC = 0;

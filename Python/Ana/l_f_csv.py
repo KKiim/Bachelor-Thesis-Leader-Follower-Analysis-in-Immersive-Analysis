@@ -103,8 +103,7 @@ def get_list(l_f_param):
     #    followerListsAllTimes = []
     bestTau = -1  # initalize bestTau with lowest possible value
     tMin = 0  # hardCoded for storch_data
-    # tMax = 125  # TODO:  get from somewhere else Time in seconds
-    # datafreq = 4  # TODO: maybe from extern in [Hz]
+
     tauRange = l_f_param['tauRange']
     maxDist = l_f_param['maxDist']
     time1 = datetime.datetime.now()
