@@ -416,8 +416,12 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
 
     var mydata = dataSource.entities.values;
     var loopSize = mydata.length;
-    console.log("TotalBirdCount:" + loopSize);
-
+    //console.log("TotalBirdCount:" + loopSize)
+    /*
+    let teste = mydata[1].position.getValue(4.5);
+    let test = Cesium.Math.toDegrees(Cesium.Ellipsoid.WGS84.cartesianToCartographic(teste).longitude);
+    console.log("MyPostion with time !!!=" + test);
+    */
     for (let i = 0; i < loopSize; i++) {
         let mymodel = mydata[i];
 
