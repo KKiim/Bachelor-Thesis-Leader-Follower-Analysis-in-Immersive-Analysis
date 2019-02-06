@@ -65,6 +65,9 @@
     pythonserver.myFunc(app,fs);
     //PS>
 
+    app.use(express.limit('128M'));
+
+
 
     app.use(compression());
     app.use(function(req, res, next) {

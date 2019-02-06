@@ -5,11 +5,17 @@ var bodyParser = require('body-parser');
 
 
 function myFunc(app,fs){
+    bodyParser = {
+        json: {limit: '500mb', extended: true},
+        urlencoded: {limit: '500mb', extended: true}
+    };
+    console.log("Hello1");
+
     //<PS
     app.use(bodyParser.json()); //line 62
     //PS>
-    console.log("Test was loaded");
 
+    console.log("Hello2");
     app.post('/lfOutput', function(req, res) {
         //console.log(req.body);
 
@@ -22,7 +28,7 @@ function myFunc(app,fs){
             py    = spawn('python', ['Python/Ana/compute_input.py']),
             dataString = '';
 
-        console.log(l_f_param);
+        //console.log(l_f_param);
 
         py.stdout.on('data', function(data){
           dataString += data.toString(); //data.toString
@@ -54,7 +60,7 @@ function myFunc(app,fs){
                 console.log("The file was saved!");
             });
 
-            console.log(str)
+            //console.log(str)
             console.log("send Response to Python l_f_request");
             res.send("SUCCESS");
         });

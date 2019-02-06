@@ -326,7 +326,7 @@ var datafreq; // in seconds
 var birdCount;
 // TODO: get birdCount from somewhere else
 var alphaArcActive = true; // should arcs encode tau values by color
-var dataset = PIGEON; // The dataset that will be loaded
+var dataset = STORCH; // The dataset that will be loaded
 var kmlSource = "";
 var birds = [];
 var idToIndex = [];
@@ -409,6 +409,7 @@ if (dataset == STORCH){
     kmlSource = '../../SampleData/kml/pigeon/n30Data.kml'
 }
 
+var allBirdsCar = []
 
 viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(function(dataSource){//birds2 bird70 2014-08-07-70.kml
     viewer.clock.multiplier = 1;
@@ -417,13 +418,23 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
     var mydata = dataSource.entities.values;
     var loopSize = mydata.length;
     //console.log("TotalBirdCount:" + loopSize)
-    /*
-    let teste = mydata[1].position.getValue(4.5);
-    let test = Cesium.Math.toDegrees(Cesium.Ellipsoid.WGS84.cartesianToCartographic(teste).longitude);
-    console.log("MyPostion with time !!!=" + test);
-    */
+    //console.log(mydata[1]);
+    //let teste = mydata[1].position.getValue(4.5);
+    //let test = Cesium.Math.toDegrees(Cesium.Ellipsoid.WGS84.cartesianToCartographic(teste).longitude);
+    //console.log("MyPostion with time !!!=" + teste);
+
+
+
+    //console.log("MYARRAY:" + arrayCar);
+
     for (let i = 0; i < loopSize; i++) {
         let mymodel = mydata[i];
+
+        let arrayCar = [];
+        for (let timecount = 0; timecount < 30; timecount++){
+            arrayCar[timecount] = mymodel.position.getValue(timecount);
+        }
+        allBirdsCar.push(arrayCar);
 
         for (let j = 0; j < loopSize; j++) {
             let mymodelJ = mydata[j];
@@ -483,7 +494,7 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
                     if(isNaN(tau) || isNaN(sig)){
                         string = "No interaction with correlatoin > " + lfMinSigniH;
                     } else {
-                        string = "Tau: " + tau + " Correlation: " + sig.toFixed(4);
+                        string = "τ: " + tau + " C: " + sig.toFixed(4);
                     }
                     return string;
                 }, false);
@@ -538,9 +549,9 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
             let count = avgLookup[timeIndex][i][COUNT];
             let avgTi = avgLookup[timeIndex][i][SUM] / count;
             if(isNaN(avgTi)){
-                return "Ti*: ";
+                return "τ<sub>i</sub><sup>*</sup>: ";
             }
-            let string = "Ti*: " + avgTi.toFixed(2);
+            let string = "τ<sub>i</sub><sup>*</sup>: " + avgTi.toFixed(2);
             return string;
         }, false);
 
@@ -554,7 +565,8 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
                     minimumPixelSize: 32,
                     color: birdColorCallback,
                     //color: Cesium.Color.LIGHTGREY,//YELLOW
-                    scale: 0.15//0.3 for pigeon
+                    scale: 3,
+                     	//0.3 for pigeon
                 },
                 name: "Bird #" + i, //used as id  for select synchronization
                 path: {
@@ -574,12 +586,17 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
 
     } //End of for loop over i
 
+    console.log(allBirdsCar);
+
     viewer.clock.shouldAnimate = false;
     viewer.trackedEntity = birds[0];
     viewer.selectedEntity = viewer.trackedEntity;
     viewer.clock.multiplier = 1;
     viewer.clock.shouldAnimate = true;
 });
+
+
+
 
 
 //timed Update of MatrixVis
@@ -611,11 +628,11 @@ function drawMatrixLegend(){
     let secondrow = document.getElementById('legendMatrix2');
     let thirdrow = document.getElementById('legendMatrix3');
     firstrow.style.color = birdColors[0]
-    firstrow.innerHTML = 'tau = -' + lfTauRange;
+    firstrow.innerHTML = 'τ = -' + lfTauRange;
     secondrow.style.color = birdColors[Math.round(totalnum/2)]; // the color in the middle of the array is neutral
     secondrow.innerHTML = 'no interaction';
     thirdrow.style.color = birdColors[totalnum-1];
-    thirdrow.innerHTML = 'tau = ' + lfTauRange;
+    thirdrow.innerHTML = 'τ = ' + lfTauRange;
 }
 
 function drawTimelineBar(id) {
@@ -811,7 +828,8 @@ function startPythonAna(){
         'minSigni': Number(lfMinSigniL),
         'tStepIntervall': Number(lfTstepIntervall),
         'maxDist': Number(maxDist),
-        'dataset': Number(dataset)
+        'dataset': Number(dataset),
+        'coord': allBirdsCar,
     };
 
     //frag ob die datei existiert
