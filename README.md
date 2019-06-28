@@ -1,7 +1,7 @@
 # Bachelor-Thesis: Leader-Follower Analysis in Immersive Analysis
-* Mentor, University: Dr. Karsten Klein, Universität Konstanz
+* Mentor, University: Dr. Karsten Klein, Universität Konstanz & Dr. Mate Nagy, Universität Konstanz & Max-Planck-Institut für Ornithologie
 * Primary Supervisor: Prof. Falk Schreiber, Universität Konstanz
-* Secondary Supervisor: Dr. Mate Nagy, Universität Konstanz & Max-Planck-Institut für Ornithologie
+* Secondary Supervisor: Prof. Dr. Iain Couzin, Universität Konstanz & Max-Planck-Institut für Ornithologie
 * Student: Kim Lasse Rehberg
 
 
