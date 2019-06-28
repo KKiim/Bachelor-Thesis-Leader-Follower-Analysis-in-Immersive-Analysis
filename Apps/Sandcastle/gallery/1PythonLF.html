@@ -224,35 +224,35 @@
                     <td><input type="checkbox" checked="checked" id="lfMatrixActiv" > Matrix</td>
                 </tr>
                 <tr>
-                    <td>tau-range [steps]</td>
+                    <td> &#964-range [steps]</td>
                     <td>
                         <input type="text" id="tauRange" value="4" size="5" >
                         <div id="tauRangeE"></div>
                     </td>
                 </tr>
                 <tr>
-                    <td>min. significance high</td>
+                    <td>C<sub>min</sub> </td>
                     <td>
                         <input type="text" id="minSigH" value="0.99" size="5" >
                         <div id="minSigHE"></div>
                     </td>
                 </tr>
                 <tr>
-                    <td>min. significance low</td>
+                    <td>C<sub>min</sub> low</td>
                     <td>
                         <input type="text" id="minSigL" value="0.98" size="5" >
                         <div id="minSigLE"></div>
                     </td>
                 </tr>
                 <tr>
-                    <td>intervall length [steps]</td>
+                    <td>t<sub>max</sub> [steps]</td>
                     <td>
                         <input type="text" id="interLength" value="6" size="5" >
                         <div id="interLengthE"></div>
                     </td>
                 </tr>
                 <tr>
-                    <td>max. distance [m]</td>
+                    <td>d<sub>max</sub> [m]</td>
                     <td>
                         <input type="text" id="maxDist" value="80" size="5" >
                         <div id="MaxDistE"></div>
@@ -538,9 +538,9 @@ viewer.dataSources.add(Cesium.KmlDataSource.load(kmlSource, options)).then(funct
             let count = avgLookup[timeIndex][i][COUNT];
             let avgTi = avgLookup[timeIndex][i][SUM] / count;
             if(isNaN(avgTi)){
-                return "Ti*: ";
+                return "T<sub>i</sub>*: ";
             }
-            let string = "Ti*: " + avgTi.toFixed(2);
+            let string = "T<sub>i</sub>*: " + avgTi.toFixed(2);
             return string;
         }, false);
 
@@ -606,16 +606,17 @@ function drawTimelineLegend(maxVal, myColors){
 
 
 function drawMatrixLegend(){
+    let tauS  = "&#964";
     let totalnum = birdColors.length;
     let firstrow = document.getElementById('legendMatrix1');
     let secondrow = document.getElementById('legendMatrix2');
     let thirdrow = document.getElementById('legendMatrix3');
     firstrow.style.color = birdColors[0]
-    firstrow.innerHTML = 'tau = -' + lfTauRange;
+    firstrow.innerHTML = tauS + ' = -' + lfTauRange;
     secondrow.style.color = birdColors[Math.round(totalnum/2)]; // the color in the middle of the array is neutral
     secondrow.innerHTML = 'no interaction';
     thirdrow.style.color = birdColors[totalnum-1];
-    thirdrow.innerHTML = 'tau = ' + lfTauRange;
+    thirdrow.innerHTML = tauS + ' = ' + lfTauRange;
 }
 
 function drawTimelineBar(id) {
