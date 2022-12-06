@@ -30,7 +30,7 @@
     "requirejs": "2.2.0"
   },
   "devDependencies": {
-    "express": "4.13.4",
+    "express": "4.17.3",
     "protobufjs": "^5.0.2",
     "request": "2.69.0",
     "websocket": "*",
